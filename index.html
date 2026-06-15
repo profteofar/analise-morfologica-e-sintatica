@@ -526,24 +526,263 @@
 
 <!-- USER GUIDE MODAL -->
 <div id="guideModal" class="modal-bg" onclick="closeGuide(event)">
-  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-    <div class="p-6">
-      <div class="flex justify-between items-start mb-4">
-        <h3 class="text-2xl">Guia do Utilizador</h3>
-        <button onclick="closeGuide()" class="btn btn-ghost p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+  <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div class="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center z-10">
+      <div class="flex items-center gap-2">
+        <i data-lucide="help-circle" class="w-6 h-6 text-orange-500"></i>
+        <h3 class="text-xl">Guia do Utilizador</h3>
       </div>
-      <div class="space-y-4 text-gray-700 text-sm">
-        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="home" class="w-4 h-4"></i>Início</h4><p>Visão geral, estatísticas e o exemplo-chave «Maria comprou um carro» comparado nas duas análises.</p></div>
-        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="image" class="w-4 h-4"></i>Infografia</h4><p>Imagem-síntese. Clica para ampliar em modo de zoom.</p></div>
-        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="presentation" class="w-4 h-4"></i>Slides</h4><p>13 diapositivos com navegação por setas ou miniaturas. No telemóvel, desliza ou usa os botões.</p></div>
-        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="headphones" class="w-4 h-4"></i>Podcast</h4><p>Reprodutor de áudio para ouvires a explicação sonora.</p></div>
-        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4"></i>Resumos</h4><p>Cinco resumos com efeito acordeão. Clica nos cabeçalhos para abrir/fechar.</p></div>
-        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4"></i>Flashcards</h4><p>81 cartas. Clica na carta para virar. «Sabia» marca como aprendida e avança automaticamente.</p></div>
-        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4"></i>Quiz</h4><p>30 questões aleatórias de 60. No final, podes rever todas as respostas ou refazer.</p></div>
-        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="book-marked" class="w-4 h-4"></i>Glossário</h4><p>14 termos-chave com pesquisa rápida.</p></div>
-        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200"><strong>💾 Persistência:</strong> O teu progresso (flashcards sabidas, quiz em curso) fica guardado no teu dispositivo (localStorage).</div>
-        <div class="p-3 bg-blue-50 rounded-lg border border-blue-200"><strong>📁 Ficheiros:</strong> Para imagens e áudio funcionarem, coloca <code>infografia.jpg</code>, <code>podcast.mp3</code> e <code>Diapositivo1.jpg</code>…<code>Diapositivo13.jpg</code> na mesma pasta do HTML.</div>
+      <button onclick="closeGuide()" class="btn btn-ghost p-2" title="Fechar"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <div class="px-4 pt-3 border-b border-gray-100 sticky top-[57px] bg-white z-10 scroll-x">
+      <div class="flex gap-1 min-w-max">
+        <button class="guide-tab nav-btn active" data-gtab="comecar"><i data-lucide="rocket" class="w-4 h-4"></i><span>Começar</span></button>
+        <button class="guide-tab nav-btn" data-gtab="seccoes"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>Secções</span></button>
+        <button class="guide-tab nav-btn" data-gtab="estudar"><i data-lucide="graduation-cap" class="w-4 h-4"></i><span>Como estudar</span></button>
+        <button class="guide-tab nav-btn" data-gtab="docente"><i data-lucide="users" class="w-4 h-4"></i><span>Docentes</span></button>
+        <button class="guide-tab nav-btn" data-gtab="tecnico"><i data-lucide="settings" class="w-4 h-4"></i><span>Técnico</span></button>
+        <button class="guide-tab nav-btn" data-gtab="faq"><i data-lucide="message-circle-question" class="w-4 h-4"></i><span>FAQ</span></button>
       </div>
+    </div>
+
+    <div class="p-5 text-gray-700 text-sm leading-relaxed">
+
+      <!-- TAB: COMEÇAR -->
+      <div class="gtab-pane" data-pane="comecar">
+        <div class="p-4 mb-4 rounded-xl" style="background:linear-gradient(135deg,var(--cream),var(--sky));">
+          <h4 class="text-lg text-navy mb-1">👋 Bem-vindo(a)!</h4>
+          <p>Este guia ajuda-te a estudar a <strong>análise morfológica e sintática</strong> da língua portuguesa de forma autónoma. Conteúdo dirigido a alunos do <strong>2.º e 3.º ciclos do ensino básico</strong>, mas útil para qualquer estudante curioso.</p>
+        </div>
+
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-orange-500"></i>Percurso recomendado (≈ 60 min)</h4>
+        <ol class="list-decimal ml-6 space-y-2 mb-4">
+          <li><strong>Vê a Infografia</strong> (2 min) — tem uma ideia visual do tema.</li>
+          <li><strong>Ouve o Podcast</strong> (5–8 min) — ideal enquanto fazes outra coisa.</li>
+          <li><strong>Lê os Resumos</strong> (15 min) — 5 acordeões com toda a teoria essencial.</li>
+          <li><strong>Pratica nos Flashcards</strong> (10 min) — memoriza as definições-chave.</li>
+          <li><strong>Aplica no Laboratório LEGO</strong> (10 min) — monta análises peça a peça.</li>
+          <li><strong>Avalia-te no Quiz</strong> (15 min) — 30 perguntas com correção imediata.</li>
+        </ol>
+
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="smartphone" class="w-4 h-4 text-blue-700"></i>Em telemóvel</h4>
+        <p class="mb-2">Tens uma <strong>barra inferior</strong> com 5 ícones — toca em <em>"Mais"</em> para abrir as restantes secções (Infografia, Slides, Podcast, Glossário, Guia).</p>
+
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="monitor" class="w-4 h-4 text-blue-700"></i>Em computador</h4>
+        <p>Usa a <strong>barra superior</strong> para navegar entre todas as secções. O botão <em>"Guia"</em> no canto superior direito abre este documento.</p>
+      </div>
+
+      <!-- TAB: SECÇÕES -->
+      <div class="gtab-pane hidden" data-pane="seccoes">
+        <p class="mb-3 text-gray-600">Detalhe de cada secção da aplicação:</p>
+
+        <div class="space-y-3">
+          <div class="card p-4">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="home" class="w-4 h-4 text-orange-500"></i>Início</h4>
+            <p>Página inicial. Encontras a apresentação do tema, <strong>estatísticas</strong> (10 classes, 81 cartas, 60 questões), os dois <em>painéis-conceito</em> (Morfologia vs. Sintaxe) e a tabela-resumo do exemplo «Maria comprou um carro».</p>
+          </div>
+
+          <div class="card p-4">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="image" class="w-4 h-4 text-orange-500"></i>Infografia</h4>
+            <p><strong>Imagem-síntese</strong> com o conceito visual em peças LEGO.</p>
+            <ul class="list-disc ml-5 mt-1 text-gray-600"><li>Toca/clica na imagem para abrir em <strong>modo zoom</strong> (ecrã completo).</li><li>No zoom, toca fora da imagem ou no ✕ para fechar.</li></ul>
+          </div>
+
+          <div class="card p-4">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="presentation" class="w-4 h-4 text-blue-700"></i>Slides</h4>
+            <p>13 diapositivos de apoio à exposição da matéria.</p>
+            <ul class="list-disc ml-5 mt-1 text-gray-600"><li><strong>Setas Anterior/Seguinte</strong> ou <strong>miniaturas numeradas</strong> em baixo para navegação direta.</li><li>Em telemóvel: <strong>desliza com o dedo</strong> para a esquerda/direita.</li><li>Toca/clica num slide para <strong>ampliar em modal</strong>.</li></ul>
+          </div>
+
+          <div class="card p-4">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="headphones" class="w-4 h-4 text-orange-500"></i>Podcast</h4>
+            <p>Reprodutor áudio com a explicação narrada do tema. Suporta:</p>
+            <ul class="list-disc ml-5 mt-1 text-gray-600"><li>Play / pause, controlo de volume e barra de progresso nativos do navegador.</li><li>Ouvir em segundo plano enquanto navegas noutras secções.</li></ul>
+          </div>
+
+          <div class="card p-4">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-blue-700"></i>Resumos Explicativos</h4>
+            <p><strong>5 resumos em acordeão</strong>, cada um baseado num PDF-fonte:</p>
+            <ol class="list-decimal ml-5 mt-1 text-gray-600"><li>O Teatro da Língua (metáfora pedagógica)</li><li>Compêndio Elementar (introdução clara)</li><li>Análise sintática e morfológica (exemplos práticos)</li><li>Diretrizes pedagógicas (estratégias de aprendizagem)</li><li>Interdependência morfossintática (nível avançado)</li></ol>
+            <p class="mt-1 text-gray-600">Toca/clica no cabeçalho para abrir/fechar. Podes ter vários abertos em simultâneo.</p>
+          </div>
+
+          <div class="card p-4">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-orange-500"></i>Flashcards</h4>
+            <p><strong>81 cartas de revisão</strong> em duas faces.</p>
+            <ul class="list-disc ml-5 mt-1 text-gray-600">
+              <li><strong>Toca/clica na carta</strong> para virar e ver a resposta (efeito 3D).</li>
+              <li><strong>Anterior / Seguinte:</strong> navegar entre cartas.</li>
+              <li><strong>«Sabia»:</strong> marca a carta como aprendida e avança automaticamente.</li>
+              <li><strong>«Baralhar»:</strong> reordena aleatoriamente.</li>
+              <li><strong>«Reiniciar»:</strong> apaga as marcações de «sabidas».</li>
+              <li>Barra de progresso indica % de cartas já memorizadas.</li>
+            </ul>
+          </div>
+
+          <div class="card p-4 border-l-4 border-orange-400">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-orange-500"></i>Laboratório LEGO <span class="badge pill-orange ml-1">novo</span></h4>
+            <p><strong>Atividade prática</strong> de análise morfossintática como peças LEGO.</p>
+            <ol class="list-decimal ml-5 mt-1 text-gray-600">
+              <li>Escolhe uma frase do <strong>menu</strong> (3 níveis: Básico, Intermédio, Avançado).</li>
+              <li>Para cada palavra, surge uma <strong>peça LEGO colorida</strong> com 2 encaixes vazios.</li>
+              <li>Toca/clica no encaixe 🟧 <strong>"Classe"</strong> → escolhe a classe morfológica.</li>
+              <li>Toca/clica no encaixe 🟦 <strong>"Função"</strong> → escolhe a função sintática.</li>
+              <li>Botão <strong>"Validar"</strong> → verde = certo, vermelho = errado.</li>
+              <li>Se errares, surge <strong>"Ver correção"</strong> com a solução completa lado a lado das tuas escolhas.</li>
+              <li><strong>"Dica"</strong> dá uma pista contextualizada para essa frase.</li>
+              <li>Frases concluídas ficam marcadas com ✓ e a pontuação atingida.</li>
+            </ol>
+          </div>
+
+          <div class="card p-4">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4 text-blue-700"></i>Quiz Formativo</h4>
+            <p><strong>30 questões aleatórias</strong> de um banco de 60, com 6 tipos diferentes:</p>
+            <ul class="list-disc ml-5 mt-1 text-gray-600 mb-1">
+              <li><strong>Escolha Múltipla:</strong> seleciona uma opção.</li>
+              <li><strong>Caixas de Verificação:</strong> várias respostas certas — seleciona todas.</li>
+              <li><strong>Verdadeiro/Falso:</strong> uma de duas opções.</li>
+              <li><strong>Correspondência:</strong> escolhe Correto/Incorreto em cada afirmação.</li>
+              <li><strong>Ordenação:</strong> arrasta ou usa setas ↑↓ para reordenar.</li>
+              <li><strong>Resposta Curta:</strong> escreve a resposta no campo (a correção é tolerante a maiúsculas/acentos).</li>
+            </ul>
+            <p>Contador "X/30", corretas/erradas/ignoradas. Cada questão tem <strong>dica</strong> e <strong>feedback explicativo</strong>. No fim: medalha, % de acerto, e a opção de <strong>rever todas as respostas</strong> ou <strong>responder de novo</strong>.</p>
+          </div>
+
+          <div class="card p-4">
+            <h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="book-marked" class="w-4 h-4 text-orange-500"></i>Glossário</h4>
+            <p><strong>14 termos-chave</strong> com definição. Usa o campo de pesquisa para filtrar em tempo real.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: COMO ESTUDAR -->
+      <div class="gtab-pane hidden" data-pane="estudar">
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-orange-500"></i>Estratégia em 3 etapas</h4>
+        <div class="space-y-3 mb-4">
+          <div class="p-3 rounded-lg border-l-4 border-orange-400 bg-orange-50">
+            <strong>1. Compreender</strong> — começa pela Infografia, depois Podcast e Resumos. Não passes à frente sem perceber a <em>diferença entre classe e função</em>.
+          </div>
+          <div class="p-3 rounded-lg border-l-4 border-blue-400 bg-blue-50">
+            <strong>2. Memorizar</strong> — usa os Flashcards e o Glossário. As 10 classes gramaticais e as principais funções sintáticas têm de ser <em>automáticas</em>.
+          </div>
+          <div class="p-3 rounded-lg border-l-4 border-green-500 bg-green-50">
+            <strong>3. Aplicar</strong> — Laboratório LEGO e Quiz. Aqui descobres se realmente <em>sabes usar</em> o que aprendeste.
+          </div>
+        </div>
+
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4 text-orange-500"></i>Truques pedagógicos</h4>
+        <ul class="space-y-2 mb-4">
+          <li class="flex gap-2"><span>💡</span><span><strong>Pergunta-chave:</strong> «O que é esta palavra?» → Morfologia. «O que está esta palavra a fazer?» → Sintaxe.</span></li>
+          <li class="flex gap-2"><span>🎭</span><span><strong>Metáfora do teatro:</strong> a palavra tem uma <em>identidade civil</em> (classe) e um <em>papel na peça</em> (função).</span></li>
+          <li class="flex gap-2"><span>🧱</span><span><strong>Metáfora do LEGO:</strong> a palavra é uma peça com <em>encaixe laranja</em> (classe) e <em>encaixe azul</em> (função).</span></li>
+          <li class="flex gap-2"><span>🔁</span><span><strong>Repetição espaçada:</strong> faz os flashcards e o quiz <em>vários dias seguidos</em> — não tudo de uma vez.</span></li>
+          <li class="flex gap-2"><span>✍️</span><span><strong>Treina com frases novas:</strong> aplica o que aprendeste a frases dos teus livros ou ao que escreves.</span></li>
+        </ul>
+
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i>Erros mais comuns a evitar</h4>
+        <ul class="list-disc ml-5 mb-3 space-y-1">
+          <li>Responder <em>"substantivo"</em> quando se pergunta o sujeito (estás a misturar classe com função).</li>
+          <li>Confundir <strong>predicado nominal</strong> (verbo de ligação: ser/estar/parecer) com <strong>predicado verbal</strong> (verbo de ação).</li>
+          <li>Esquecer que uma <em>preposição</em> nunca pode ser sujeito ou objeto sozinha.</li>
+          <li>Não identificar o <strong>sujeito oculto</strong> pela desinência do verbo (-mos, -ste…).</li>
+        </ul>
+      </div>
+
+      <!-- TAB: DOCENTES -->
+      <div class="gtab-pane hidden" data-pane="docente">
+        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+          <strong>👨‍🏫 Para professores e educadores:</strong> sugestões de utilização em contexto de sala de aula.
+        </div>
+
+        <h4 class="text-base text-navy mb-2">📅 Aula 1 — Introdução (45 min)</h4>
+        <ul class="list-disc ml-5 mb-3 space-y-1">
+          <li>Projetar a <strong>Infografia</strong> e explorá-la em grande grupo.</li>
+          <li>Ouvir o <strong>Podcast</strong> em conjunto (5–8 min).</li>
+          <li>Em pares ou trios, percorrer o <strong>Resumo 1</strong> (Teatro da Língua).</li>
+          <li>TPC: 10 minutos de Flashcards em casa.</li>
+        </ul>
+
+        <h4 class="text-base text-navy mb-2">📅 Aula 2 — Prática (45 min)</h4>
+        <ul class="list-disc ml-5 mb-3 space-y-1">
+          <li>Apresentar os <strong>Slides 1–6</strong> em projeção.</li>
+          <li>Atividade no <strong>Laboratório LEGO</strong>: cada par resolve as 2 frases de nível Básico.</li>
+          <li>Discussão dos erros em grande grupo, com recurso à correção integrada.</li>
+        </ul>
+
+        <h4 class="text-base text-navy mb-2">📅 Aula 3 — Aplicação e Avaliação (45 min)</h4>
+        <ul class="list-disc ml-5 mb-3 space-y-1">
+          <li>Frases Intermédias/Avançadas no Laboratório LEGO.</li>
+          <li><strong>Quiz Formativo</strong> individual em telemóvel/tablet/computador.</li>
+          <li>Os alunos partilham a % obtida (não a identificação das questões); reforço dos pontos fracos coletivos.</li>
+        </ul>
+
+        <h4 class="text-base text-navy mb-2">🧩 Adaptações</h4>
+        <ul class="list-disc ml-5 space-y-1">
+          <li><strong>NEE / dificuldades:</strong> começar pelos resumos com mais ilustrações (Teatro, Compêndio); focar nas frases Básicas do LAB; usar a Dica do quiz sem penalização.</li>
+          <li><strong>Alunos avançados:</strong> desafiar a criar <em>novas frases</em> e validá-las usando o Glossário e os Resumos.</li>
+          <li><strong>Modo offline:</strong> a aplicação funciona <em>sem internet</em> assim que o ficheiro HTML e os recursos estiverem na pasta.</li>
+        </ul>
+      </div>
+
+      <!-- TAB: TÉCNICO -->
+      <div class="gtab-pane hidden" data-pane="tecnico">
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="folder" class="w-4 h-4"></i>Ficheiros necessários</h4>
+        <p class="mb-2">Para todos os recursos multimédia funcionarem, coloca na <strong>mesma pasta</strong> do <code>index.html</code>:</p>
+        <ul class="font-mono text-xs bg-gray-100 p-3 rounded-lg mb-3 space-y-0.5">
+          <li>📄 index.html</li>
+          <li>🖼️ infografia.jpg</li>
+          <li>🎵 podcast.mp3</li>
+          <li>🖼️ Diapositivo1.jpg</li>
+          <li>🖼️ Diapositivo2.jpg</li>
+          <li>... (até Diapositivo13.jpg)</li>
+        </ul>
+        <p class="text-xs text-gray-600 mb-3">⚠️ Se um ficheiro estiver em falta, aparece um aviso visual nessa secção — o resto da aplicação continua a funcionar.</p>
+
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="database" class="w-4 h-4"></i>Persistência local (localStorage)</h4>
+        <p class="mb-2">O teu progresso é guardado <strong>apenas no teu dispositivo</strong>, no navegador:</p>
+        <ul class="list-disc ml-5 mb-2 text-xs">
+          <li><code>gpms_fc_v1</code> — flashcards marcados como sabidos</li>
+          <li><code>gpms_quiz_v1</code> — quiz em curso (permite retomar)</li>
+          <li><code>gpms_lab_v1</code> — frases do Laboratório resolvidas e pontuações</li>
+        </ul>
+        <p class="text-xs text-gray-600 mb-3">❗ <strong>Não há servidor:</strong> nada é enviado para a internet, nada é partilhado com o professor automaticamente.</p>
+
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4"></i>Compatibilidade</h4>
+        <ul class="list-disc ml-5 mb-3">
+          <li><strong>Navegadores:</strong> Chrome, Edge, Firefox, Safari (versões recentes).</li>
+          <li><strong>Dispositivos:</strong> telemóvel, tablet, portátil, computador fixo.</li>
+          <li><strong>Internet:</strong> apenas necessária no <em>primeiro carregamento</em> (carrega Tailwind e Lucide do CDN); depois funciona offline.</li>
+        </ul>
+
+        <h4 class="text-base text-navy mb-2 flex items-center gap-2"><i data-lucide="trash-2" class="w-4 h-4"></i>Limpar progresso</h4>
+        <p class="mb-2 text-xs">Em cada secção tens botões «Reiniciar» / «Limpar» para apagar o respetivo progresso. Para apagar tudo de uma vez, abre as Ferramentas de Programador (F12) → Application → Local Storage → eliminar as chaves <code>gpms_*</code>.</p>
+      </div>
+
+      <!-- TAB: FAQ -->
+      <div class="gtab-pane hidden" data-pane="faq">
+        <details class="card p-3 mb-2"><summary class="font-semibold text-navy flex items-center justify-between">As imagens não aparecem. O que faço? <i data-lucide="chevron-down" class="w-4 h-4"></i></summary>
+        <p class="mt-2 text-gray-600">Verifica se o ficheiro está na <strong>mesma pasta</strong> do <code>index.html</code> e se o nome (e extensão) está exatamente correto, incluindo maiúsculas: <code>Diapositivo1.jpg</code> ≠ <code>diapositivo1.JPG</code>.</p></details>
+
+        <details class="card p-3 mb-2"><summary class="font-semibold text-navy flex items-center justify-between">O áudio do podcast não toca. <i data-lucide="chevron-down" class="w-4 h-4"></i></summary>
+        <p class="mt-2 text-gray-600">Confirma que <code>podcast.mp3</code> está na pasta e que o navegador permite reprodução automática. Em alguns iPhones é preciso tocar uma vez no botão Play.</p></details>
+
+        <details class="card p-3 mb-2"><summary class="font-semibold text-navy flex items-center justify-between">Perdi o meu progresso! <i data-lucide="chevron-down" class="w-4 h-4"></i></summary>
+        <p class="mt-2 text-gray-600">O progresso é guardado por navegador e dispositivo. Mudar de navegador, usar modo anónimo/privado, ou limpar os dados do navegador apaga o progresso. <strong>Não há cópia de segurança na nuvem</strong>.</p></details>
+
+        <details class="card p-3 mb-2"><summary class="font-semibold text-navy flex items-center justify-between">Posso usar em ecrã pequeno (smartphone)? <i data-lucide="chevron-down" class="w-4 h-4"></i></summary>
+        <p class="mt-2 text-gray-600">Sim — a aplicação tem desenho <em>mobile-first</em> com barra de navegação inferior, peças LEGO redimensionadas, e *bottom sheets* para os menus de seleção.</p></details>
+
+        <details class="card p-3 mb-2"><summary class="font-semibold text-navy flex items-center justify-between">A resposta curta do quiz não aceitou a minha resposta. <i data-lucide="chevron-down" class="w-4 h-4"></i></summary>
+        <p class="mt-2 text-gray-600">A validação é tolerante a maiúsculas, acentos e pontuação, mas pede as <strong>palavras-chave essenciais</strong>. Se respondeste "sujeito oculto" e a esperada era "Sujeito oculto (nós).", funciona. Se respondeste algo muito diferente, vê a explicação no feedback.</p></details>
+
+        <details class="card p-3 mb-2"><summary class="font-semibold text-navy flex items-center justify-between">Posso partilhar a aplicação com colegas? <i data-lucide="chevron-down" class="w-4 h-4"></i></summary>
+        <p class="mt-2 text-gray-600">Sim! É um ficheiro único, podes enviar por email ou colocar numa drive partilhada. Cada pessoa terá o seu próprio progresso.</p></details>
+
+        <details class="card p-3 mb-2"><summary class="font-semibold text-navy flex items-center justify-between">Quem fez esta aplicação? <i data-lucide="chevron-down" class="w-4 h-4"></i></summary>
+        <p class="mt-2 text-gray-600">Teodósio Faria · ©2026 · Guia Prático de Análise Morfológica e Sintática da Língua Portuguesa. Conteúdos baseados em 5 documentos-fonte sobre morfologia e sintaxe portuguesas.</p></details>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1439,6 +1678,17 @@ function showMyAttempt(){
   if(window.lucide)lucide.createIcons();
   document.getElementById('labBricks').scrollIntoView({behavior:'smooth', block:'start'});
 }
+
+
+// Guide tabs wiring
+document.querySelectorAll('.guide-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const target = t.dataset.gtab;
+    document.querySelectorAll('.guide-tab').forEach(x=>x.classList.toggle('active', x===t));
+    document.querySelectorAll('.gtab-pane').forEach(p=>p.classList.toggle('hidden', p.dataset.pane!==target));
+    if(window.lucide)lucide.createIcons();
+  });
+});
 
 // init
 labLoadProgress();
