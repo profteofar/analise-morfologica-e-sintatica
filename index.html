@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia Prático de Análise Morfológica e Sintática</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF5EC; --cream-2:#F3E8D4;
+    --sky:#EAF2F7; --sky-2:#D4E4EE;
+    --orange:#E07B3C; --orange-dark:#B85F26;
+    --blue:#2C5F87; --blue-dark:#1A4365;
+    --navy:#1A2E48; --ink:#243B53;
+    --muted:#6B7C93; --line:#E5DDD0;
+    --ok:#2F855A; --err:#C53030; --warn:#B7791F;
+  }
+  html,body{font-family:'Open Sans',system-ui,sans-serif;color:var(--ink);}
+  body{background:linear-gradient(180deg,var(--cream) 0%,#fff 40%,var(--sky) 100%);}
+  h1,h2,h3,h4{font-family:'Open Sans',sans-serif;color:var(--navy);font-weight:800;letter-spacing:-0.01em;}
+  .pill-orange{background:var(--orange);color:#fff;}
+  .pill-blue{background:var(--blue);color:#fff;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 3px rgba(26,46,72,0.05);}
+  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-radius:10px;font-weight:600;transition:all .2s;cursor:pointer;border:1px solid transparent;}
+  .btn-primary{background:var(--orange);color:#fff;}
+  .btn-primary:hover{background:var(--orange-dark);transform:translateY(-1px);}
+  .btn-blue{background:var(--blue);color:#fff;}
+  .btn-blue:hover{background:var(--blue-dark);transform:translateY(-1px);}
+  .btn-ghost{background:#fff;color:var(--navy);border-color:var(--line);}
+  .btn-ghost:hover{background:var(--cream);}
+  .nav-btn{padding:.55rem .9rem;border-radius:10px;font-weight:600;color:var(--ink);transition:all .2s;display:inline-flex;align-items:center;gap:.45rem;font-size:.92rem;}
+  .nav-btn:hover{background:var(--cream-2);color:var(--navy);}
+  .nav-btn.active{background:var(--navy);color:#fff;}
+  .section{display:none;animation:fade .3s ease;}
+  .section.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  .acc-head{cursor:pointer;user-select:none;}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+  .acc-body.open{max-height:6000px;}
+  .modal-bg{position:fixed;inset:0;background:rgba(15,25,40,.85);display:none;align-items:center;justify-content:center;z-index:50;padding:1rem;}
+  .modal-bg.show{display:flex;}
+  .modal-img{max-width:95vw;max-height:90vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .flashcard{perspective:1200px;height:240px;cursor:pointer;}
+  .flashcard-inner{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d;}
+  .flashcard.flipped .flashcard-inner{transform:rotateY(180deg);}
+  .flashcard-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;padding:1.5rem;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:600;}
+  .flashcard-front{background:linear-gradient(135deg,#fff,var(--cream));border:2px solid var(--orange);color:var(--navy);}
+  .flashcard-back{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;transform:rotateY(180deg);}
+  .opt{display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1rem;border:2px solid var(--line);border-radius:10px;cursor:pointer;transition:all .2s;background:#fff;}
+  .opt:hover{border-color:var(--blue);background:var(--sky);}
+  .opt.selected{border-color:var(--blue);background:var(--sky-2);}
+  .opt.correct{border-color:var(--ok);background:#F0FFF4;}
+  .opt.wrong{border-color:var(--err);background:#FFF5F5;}
+  .badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.02em;}
+  .progress-bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--blue));transition:width .4s;}
+  .order-item{padding:.7rem 1rem;background:#fff;border:2px solid var(--line);border-radius:10px;cursor:move;display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;transition:all .2s;}
+  .order-item:hover{border-color:var(--blue);}
+  .order-item.dragging{opacity:.5;}
+  .corr-row{display:flex;align-items:center;gap:.75rem;padding:.6rem;background:var(--cream);border-radius:8px;margin-bottom:.5rem;flex-wrap:wrap;}
+  .corr-row select{padding:.4rem .6rem;border:1px solid var(--line);border-radius:6px;background:#fff;font-weight:600;}
+  .term-tag{display:inline-block;padding:.3rem .7rem;background:#fff;border:1px solid var(--line);border-radius:6px;margin:.15rem;font-size:.85rem;cursor:pointer;transition:all .2s;}
+  .term-tag:hover{background:var(--cream);}
+  .slide-thumb{cursor:pointer;border:2px solid transparent;border-radius:8px;transition:all .2s;}
+  .slide-thumb.active,.slide-thumb:hover{border-color:var(--orange);}
+  details summary{cursor:pointer;list-style:none;}
+  details summary::-webkit-details-marker{display:none;}
+  .hero-grad{background:linear-gradient(135deg,var(--cream) 0%,#fff 50%,var(--sky) 100%);}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1rem;text-align:center;}
+  .stat-num{font-size:1.8rem;font-weight:800;color:var(--navy);line-height:1;}
+  .stat-lbl{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:.3rem;}
+  .audio-wrap{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border-radius:14px;padding:1.5rem;}
+  audio{width:100%;}
+  .scroll-x{overflow-x:auto;scrollbar-width:thin;}
+  @media (max-width: 768px){
+    .nav-btn span.lbl{display:none;}
+    .flashcard{height:200px;}
+  }
+  .img-broken{background:repeating-linear-gradient(45deg,#f3e8d4,#f3e8d4 10px,#fbf5ec 10px,#fbf5ec 20px);min-height:300px;display:flex;align-items:center;justify-content:center;color:var(--muted);border-radius:10px;font-weight:600;text-align:center;padding:2rem;}
+
+  /* ============ MOBILE-FIRST ============ */
+  /* Bottom nav (mobile only) */
+  .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:45;padding:.4rem .25rem calc(.4rem + env(safe-area-inset-bottom));box-shadow:0 -2px 10px rgba(26,46,72,.08);}
+  .bottom-nav-inner{display:grid;grid-template-columns:repeat(5,1fr);gap:.15rem;max-width:100%;}
+  .bn-btn{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.45rem .2rem;border-radius:10px;color:var(--muted);transition:all .15s;min-height:52px;font-size:.65rem;font-weight:600;line-height:1.1;text-align:center;}
+  .bn-btn.active{color:var(--orange-dark);background:var(--cream);}
+  .bn-btn:active{transform:scale(0.95);background:var(--cream);}
+  .bn-btn i{width:22px;height:22px;}
+  /* "More" overlay menu */
+  .more-sheet{display:none;position:fixed;inset:0;background:rgba(15,25,40,.5);z-index:46;align-items:flex-end;}
+  .more-sheet.show{display:flex;}
+  .more-sheet-card{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom));max-height:75vh;overflow-y:auto;animation:slideUp .25s ease;}
+  @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  .more-handle{width:40px;height:4px;background:var(--line);border-radius:2px;margin:0 auto .8rem;}
+  .more-item{display:flex;align-items:center;gap:.85rem;padding:.95rem .8rem;border-radius:12px;font-weight:600;color:var(--ink);width:100%;text-align:left;transition:background .15s;}
+  .more-item:active{background:var(--cream);}
+  .more-item.active{background:var(--cream);color:var(--orange-dark);}
+  .more-item i{width:22px;height:22px;flex-shrink:0;}
+
+  /* Mobile tweaks */
+  @media (max-width: 768px){
+    .nav-btn span.lbl{display:none;}
+    .flashcard{height:220px;}
+    /* Hide top horizontal nav scroller, use bottom nav instead */
+    header nav{display:none;}
+    .bottom-nav{display:block;}
+    /* Add space at bottom so content not covered by bottom nav */
+    main{padding-bottom:5rem !important;}
+    footer{padding-bottom:5rem;}
+    /* Bigger touch targets */
+    .btn{padding:.7rem 1rem;min-height:44px;font-size:.95rem;}
+    .opt{padding:1rem;min-height:48px;}
+    .nav-btn{min-height:44px;}
+    /* Quiz controls: stack action buttons in a sticky bottom bar feel */
+    #quizPlay .flex.justify-between{flex-direction:column;gap:.5rem;}
+    #quizPlay .flex.justify-between>div{display:flex;gap:.5rem;width:100%;}
+    #quizPlay .flex.justify-between>div .btn{flex:1;justify-content:center;}
+    #quizPlay #qHint{width:100%;justify-content:center;}
+    /* Flashcard buttons full width */
+    #sec-flashcards .flex.justify-between{gap:.4rem;}
+    #sec-flashcards .flex.justify-between .btn{flex:1;justify-content:center;padding:.7rem .5rem;font-size:.85rem;}
+    /* Modal close button bigger */
+    #modalBg button{width:44px;height:44px;}
+    /* Slides controls */
+    #sec-slides .btn{min-height:44px;}
+    /* Hero text */
+    .hero-grad h2{font-size:1.75rem;}
+    .stat-num{font-size:1.5rem;}
+    /* Accordion tap area */
+    .acc-head{padding:1.1rem 1rem;}
+    /* Glossary search */
+    #glosSearch{padding:.9rem;font-size:1rem;}
+    /* User guide modal full-screen on mobile */
+    #guideModal>div{max-height:95vh;border-radius:16px 16px 0 0;align-self:flex-end;margin-bottom:0;}
+    #guideModal{align-items:flex-end;padding:0;}
+  }
+  /* Tiny phones */
+  @media (max-width: 380px){
+    .bn-btn{font-size:.6rem;}
+    .hero-grad{padding:1.25rem;}
+    .hero-grad h2{font-size:1.5rem;}
+    h2{font-size:1.35rem !important;}
+  }
+  /* Smooth scrolling and touch */
+  *{-webkit-tap-highlight-color:transparent;}
+  button,.opt,.nav-btn,.bn-btn,.more-item,.flashcard,.order-item{touch-action:manipulation;}
+
+  /* ============ LABORATÓRIO LEGO ============ */
+  .lab-stage{background:linear-gradient(180deg,#fff,var(--cream));border:1px dashed var(--orange);border-radius:14px;padding:1.5rem 1rem;}
+  .lab-bricks{display:flex;flex-wrap:wrap;gap:1.25rem;justify-content:center;align-items:flex-start;}
+  .lab-brick{display:flex;flex-direction:column;align-items:stretch;gap:.4rem;min-width:120px;animation:dropIn .4s ease;}
+  @keyframes dropIn{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
+  .brick-word{
+    position:relative;color:#fff;font-weight:800;font-size:1.05rem;text-align:center;
+    padding:1.4rem .85rem .85rem;border-radius:8px;
+    box-shadow:inset 0 -7px 0 rgba(0,0,0,.18), 0 4px 0 rgba(0,0,0,.1), 0 6px 12px rgba(0,0,0,.12);
+    letter-spacing:.01em;
+  }
+  /* LEGO studs on top */
+  .brick-word::before,.brick-word::after{
+    content:'';position:absolute;top:-7px;width:18px;height:14px;border-radius:50%/40%;
+    background:inherit;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);
+  }
+  .brick-word::before{left:22%;}
+  .brick-word::after{right:22%;}
+  /* Color rotation for visual variety (infografia palette) */
+  .bc-1{background:#E07B3C;}      /* laranja */
+  .bc-2{background:#5BA3C7;}      /* azul-claro */
+  .bc-3{background:#D4A574;}      /* areia */
+  .bc-4{background:#3F8FB0;}      /* azul-petróleo */
+  .bc-5{background:#C66B33;}      /* laranja queimado */
+  .bc-6{background:#7CB4CC;}      /* azul-pálido */
+  .bc-7{background:#B89B6E;}      /* dourado */
+  .bc-8{background:#2C5F87;}      /* azul-marinho */
+  .bc-9{background:#E89968;}      /* pêssego */
+
+  .brick-slots{display:flex;flex-direction:column;gap:.35rem;}
+  .brick-slot{
+    display:flex;align-items:center;justify-content:center;gap:.3rem;
+    padding:.55rem .5rem;border-radius:8px;font-weight:700;font-size:.72rem;
+    border:2px dashed transparent;cursor:pointer;transition:all .15s;
+    text-align:center;line-height:1.15;min-height:42px;
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);
+  }
+  .brick-slot.morph{background:#FFF1E2;color:var(--orange-dark);border-color:var(--orange);}
+  .brick-slot.synt{background:#E4F0F7;color:var(--blue-dark);border-color:var(--blue);}
+  .brick-slot.morph:hover,.brick-slot.morph.filled{background:var(--orange);color:#fff;border-style:solid;}
+  .brick-slot.synt:hover,.brick-slot.synt.filled{background:var(--blue);color:#fff;border-style:solid;}
+  .brick-slot .lbl-mini{display:block;font-size:.62rem;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+  .brick-slot.filled .lbl-mini{opacity:.85;}
+  .brick-slot.correct{background:#22A06B !important;color:#fff !important;border-color:#22A06B !important;border-style:solid !important;}
+  .brick-slot.wrong{background:#E53E3E !important;color:#fff !important;border-color:#E53E3E !important;border-style:solid !important;}
+  .brick-slot.skipped{opacity:.55;}
+
+  /* sentence cards */
+  .lab-card{cursor:pointer;transition:all .2s;border-left:4px solid var(--orange);}
+  .lab-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(26,46,72,.1);}
+  .lab-card.done{border-left-color:#22A06B;}
+  .lab-card .lab-frase{font-style:italic;color:var(--navy);}
+
+  /* picker bottom sheet */
+  .picker-grid{display:grid;grid-template-columns:1fr;gap:.4rem;}
+  @media(min-width:640px){.picker-grid{grid-template-columns:1fr 1fr;}}
+  .picker-opt{padding:.85rem 1rem;border-radius:10px;border:2px solid var(--line);background:#fff;text-align:left;font-weight:600;font-size:.9rem;color:var(--ink);transition:all .15s;cursor:pointer;}
+  .picker-opt:hover{border-color:var(--blue);background:var(--sky);}
+  .picker-opt.selected{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .picker-opt.morph-pool:hover{border-color:var(--orange);background:var(--cream);}
+  .picker-opt.morph-pool.selected{background:var(--orange);color:#fff;border-color:var(--orange);}
+
+  @media (max-width:768px){
+    .lab-brick{min-width:100px;}
+    .brick-word{font-size:.95rem;padding:1.2rem .6rem .7rem;}
+    .brick-slot{font-size:.68rem;padding:.5rem .35rem;min-height:46px;}
+  }
+
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- HEADER -->
+<header class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-blue-700 flex items-center justify-center text-white font-bold">M·S</div>
+      <div>
+        <h1 class="text-base sm:text-lg leading-tight">Guia Prático</h1>
+        <p class="text-xs text-gray-500 leading-tight">Análise Morfológica e Sintática</p>
+      </div>
+    </div>
+    <button id="userGuideBtn" class="btn btn-ghost text-sm" title="Guia do utilizador">
+      <i data-lucide="help-circle" class="w-4 h-4"></i><span class="hidden sm:inline">Guia</span>
+    </button>
+  </div>
+  <nav class="max-w-7xl mx-auto px-2 pb-2 scroll-x">
+    <div class="flex gap-1 min-w-max">
+      <button class="nav-btn active" data-go="inicio"><i data-lucide="home" class="w-4 h-4"></i><span class="lbl">Início</span></button>
+      <button class="nav-btn" data-go="infografia"><i data-lucide="image" class="w-4 h-4"></i><span class="lbl">Infografia</span></button>
+      <button class="nav-btn" data-go="slides"><i data-lucide="presentation" class="w-4 h-4"></i><span class="lbl">Slides</span></button>
+      <button class="nav-btn" data-go="podcast"><i data-lucide="headphones" class="w-4 h-4"></i><span class="lbl">Podcast</span></button>
+      <button class="nav-btn" data-go="resumos"><i data-lucide="book-open" class="w-4 h-4"></i><span class="lbl">Resumos</span></button>
+      <button class="nav-btn" data-go="laboratorio"><i data-lucide="flask-conical" class="w-4 h-4"></i><span class="lbl">Laboratório</span></button>
+      <button class="nav-btn" data-go="flashcards"><i data-lucide="layers" class="w-4 h-4"></i><span class="lbl">Flashcards</span></button>
+      <button class="nav-btn" data-go="quiz"><i data-lucide="clipboard-check" class="w-4 h-4"></i><span class="lbl">Quiz</span></button>
+      <button class="nav-btn" data-go="glossario"><i data-lucide="book-marked" class="w-4 h-4"></i><span class="lbl">Glossário</span></button>
+    </div>
+  </nav>
+</header>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <div class="bottom-nav-inner">
+    <button class="bn-btn active" data-bn="inicio"><i data-lucide="home"></i>Início</button>
+    <button class="bn-btn" data-bn="resumos"><i data-lucide="book-open"></i>Resumos</button>
+    <button class="bn-btn" data-bn="flashcards"><i data-lucide="layers"></i>Cartas</button>
+    <button class="bn-btn" data-bn="quiz"><i data-lucide="clipboard-check"></i>Quiz</button>
+    <button class="bn-btn" id="bnMore"><i data-lucide="menu"></i>Mais</button>
+  </div>
+</nav>
+
+<!-- MORE SHEET (mobile) -->
+<div class="more-sheet" id="moreSheet" onclick="closeMore(event)">
+  <div class="more-sheet-card" onclick="event.stopPropagation()">
+    <div class="more-handle"></div>
+    <h3 class="text-base mb-2 px-2">Mais secções</h3>
+    <button class="more-item" data-bn="infografia"><i data-lucide="image"></i>Infografia</button>
+    <button class="more-item" data-bn="slides"><i data-lucide="presentation"></i>Slides</button>
+    <button class="more-item" data-bn="podcast"><i data-lucide="headphones"></i>Podcast</button>
+    <button class="more-item" data-bn="laboratorio"><i data-lucide="flask-conical"></i>Laboratório LEGO</button>
+    <button class="more-item" data-bn="glossario"><i data-lucide="book-marked"></i>Glossário</button>
+    <hr class="my-2 border-gray-200">
+    <button class="more-item" id="moreGuide"><i data-lucide="help-circle"></i>Guia do utilizador</button>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+<!-- INÍCIO -->
+<section id="sec-inicio" class="section active">
+  <div class="hero-grad rounded-2xl p-6 sm:p-10 mb-6 border border-orange-100">
+    <span class="badge pill-orange mb-3">Guia de Estudo · 2.º e 3.º Ciclos</span>
+    <h2 class="text-2xl sm:text-4xl mb-3">Morfologia <span class="text-orange-600">vs.</span> Sintaxe</h2>
+    <p class="text-lg text-gray-700 max-w-3xl mb-4">A <strong>natureza</strong> e a <strong>função</strong> das palavras na língua portuguesa. Um percurso completo com infografia, slides, podcast, resumos, flashcards e quiz formativo.</p>
+    <div class="flex flex-wrap gap-2">
+      <button class="btn btn-primary" data-go="resumos"><i data-lucide="book-open" class="w-4 h-4"></i>Começar a estudar</button>
+      <button class="btn btn-blue" data-go="quiz"><i data-lucide="clipboard-check" class="w-4 h-4"></i>Fazer o Quiz</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="stat"><div class="stat-num text-orange-600">10</div><div class="stat-lbl">Classes Gramaticais</div></div>
+    <div class="stat"><div class="stat-num text-blue-700">9+</div><div class="stat-lbl">Funções Sintáticas</div></div>
+    <div class="stat"><div class="stat-num text-orange-600" id="statCards">81</div><div class="stat-lbl">Flashcards</div></div>
+    <div class="stat"><div class="stat-num text-blue-700">60</div><div class="stat-lbl">Questões</div></div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-2"><span class="pill-orange badge">MORFOLOGIA</span></div>
+      <h3 class="text-xl mb-2">A natureza da palavra</h3>
+      <p class="text-gray-700">Estuda a palavra <strong>em si</strong>, classificando-a numa das 10 classes gramaticais (substantivo, verbo, adjetivo…). É o «bilhete de identidade» da palavra.</p>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-2"><span class="pill-blue badge">SINTAXE</span></div>
+      <h3 class="text-xl mb-2">A função na oração</h3>
+      <p class="text-gray-700">Estuda a palavra <strong>em relação</strong> às outras dentro da frase, identificando o papel que desempenha (sujeito, predicado, objeto…).</p>
+    </div>
+  </div>
+
+  <div class="card p-5 mt-4">
+    <h3 class="text-lg mb-3 flex items-center gap-2"><i data-lucide="zap" class="w-5 h-5 text-orange-500"></i>Exemplo-chave</h3>
+    <p class="mb-3 text-gray-700 italic">«Maria comprou um carro.»</p>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="border-b-2 border-gray-200 text-left"><th class="py-2 pr-2">Termo</th><th class="py-2 pr-2 text-orange-600">Morfologia</th><th class="py-2 text-blue-700">Sintaxe</th></tr></thead>
+        <tbody>
+          <tr class="border-b border-gray-100"><td class="py-2 font-semibold">Maria</td><td>Substantivo próprio</td><td>Sujeito simples</td></tr>
+          <tr class="border-b border-gray-100"><td class="py-2 font-semibold">comprou</td><td>Verbo</td><td>Núcleo do predicado verbal</td></tr>
+          <tr class="border-b border-gray-100"><td class="py-2 font-semibold">um</td><td>Artigo</td><td>Adjunto adnominal</td></tr>
+          <tr><td class="py-2 font-semibold">carro</td><td>Substantivo comum</td><td>Núcleo do objeto direto</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- INFOGRAFIA -->
+<section id="sec-infografia" class="section">
+  <h2 class="text-2xl mb-4 flex items-center gap-2"><i data-lucide="image" class="w-6 h-6 text-orange-500"></i>Infografia</h2>
+  <p class="text-gray-700 mb-4">Vista geral visual da distinção entre Morfologia e Sintaxe. Clica na imagem para ampliar.</p>
+  <div class="card p-3 cursor-zoom-in" onclick="openModal('./infografia.jpg')">
+    <img src="./infografia.jpg" alt="Infografia Morfologia vs Sintaxe" class="w-full rounded-lg" onerror="this.outerHTML='<div class=&quot;img-broken&quot;><div><i data-lucide=\'image-off\' class=\'w-8 h-8 mx-auto mb-2\'></i>Coloca <code>infografia.jpg</code> na mesma pasta do HTML</div></div>';if(window.lucide)lucide.createIcons();">
+    <p class="text-center text-sm text-gray-500 mt-2"><i data-lucide="zoom-in" class="w-4 h-4 inline"></i> Clica para ampliar</p>
+  </div>
+</section>
+
+<!-- SLIDES -->
+<section id="sec-slides" class="section">
+  <h2 class="text-2xl mb-4 flex items-center gap-2"><i data-lucide="presentation" class="w-6 h-6 text-blue-700"></i>Slides</h2>
+  <p class="text-gray-700 mb-4">13 diapositivos de apoio. Usa as setas ou desliza no telemóvel. Clica no slide para ampliar.</p>
+  <div class="card p-4">
+    <div class="flex items-center justify-between mb-3">
+      <button id="slidePrev" class="btn btn-ghost"><i data-lucide="chevron-left" class="w-4 h-4"></i><span class="hidden sm:inline">Anterior</span></button>
+      <span class="font-semibold text-navy"><span id="slideIdx">1</span> / 13</span>
+      <button id="slideNext" class="btn btn-ghost"><span class="hidden sm:inline">Seguinte</span><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+    </div>
+    <div class="cursor-zoom-in" id="slideMain" onclick="openModal(currentSlideSrc())">
+      <img id="slideImg" src="./Diapositivo1.jpg" alt="Slide 1" class="w-full rounded-lg" onerror="this.outerHTML='<div class=&quot;img-broken&quot;><div><i data-lucide=\'image-off\' class=\'w-8 h-8 mx-auto mb-2\'></i>Coloca <code>Diapositivo1.jpg</code>…<code>Diapositivo13.jpg</code> na mesma pasta</div></div>';if(window.lucide)lucide.createIcons();">
+    </div>
+    <div class="mt-3 scroll-x">
+      <div id="slideThumbs" class="flex gap-2 pb-2"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PODCAST -->
+<section id="sec-podcast" class="section">
+  <h2 class="text-2xl mb-4 flex items-center gap-2"><i data-lucide="headphones" class="w-6 h-6 text-orange-500"></i>Podcast</h2>
+  <p class="text-gray-700 mb-4">Ouve a explicação sonora sobre Morfologia e Sintaxe.</p>
+  <div class="audio-wrap">
+    <div class="flex items-center gap-3 mb-3">
+      <i data-lucide="podcast" class="w-8 h-8"></i>
+      <div><h3 class="text-white text-lg">Morfologia vs. Sintaxe</h3><p class="text-sm opacity-80">Episódio de estudo</p></div>
+    </div>
+    <audio controls preload="metadata">
+      <source src="./podcast.mp3" type="audio/mpeg">
+      O teu navegador não suporta áudio. Coloca <code>podcast.mp3</code> na mesma pasta do HTML.
+    </audio>
+  </div>
+</section>
+
+<!-- RESUMOS -->
+<section id="sec-resumos" class="section">
+  <h2 class="text-2xl mb-4 flex items-center gap-2"><i data-lucide="book-open" class="w-6 h-6 text-blue-700"></i>Resumos Explicativos</h2>
+  <p class="text-gray-700 mb-4">Clica em cada tema para expandir. Conteúdos baseados nas cinco fontes documentais.</p>
+  <div id="resumosWrap" class="space-y-3"></div>
+</section>
+
+<!-- FLASHCARDS -->
+<section id="sec-flashcards" class="section">
+  <h2 class="text-2xl mb-3 flex items-center gap-2"><i data-lucide="layers" class="w-6 h-6 text-orange-500"></i>Flashcards</h2>
+  <p class="text-gray-700 mb-4">Clica na carta para virar e ver a resposta. Marca como «sabida» para avançar.</p>
+  <div class="card p-5">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <span class="font-semibold">Carta <span id="fcIdx">1</span> de <span id="fcTot">81</span></span>
+      <div class="flex gap-2">
+        <button id="fcShuffle" class="btn btn-ghost text-sm"><i data-lucide="shuffle" class="w-4 h-4"></i>Baralhar</button>
+        <button id="fcReset" class="btn btn-ghost text-sm"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Reiniciar</button>
+      </div>
+    </div>
+    <div class="progress-bar mb-4"><div id="fcProg" class="progress-fill" style="width:0%"></div></div>
+    <div id="flashcard" class="flashcard mb-4" onclick="this.classList.toggle('flipped')">
+      <div class="flashcard-inner">
+        <div class="flashcard-face flashcard-front"><div><div class="text-xs text-orange-600 mb-2 font-bold">PERGUNTA</div><div id="fcFront" class="text-base sm:text-lg"></div></div></div>
+        <div class="flashcard-face flashcard-back"><div><div class="text-xs opacity-80 mb-2 font-bold">RESPOSTA</div><div id="fcBack" class="text-base sm:text-lg"></div></div></div>
+      </div>
+    </div>
+    <div class="flex justify-between gap-2">
+      <button id="fcPrev" class="btn btn-ghost"><i data-lucide="chevron-left" class="w-4 h-4"></i>Anterior</button>
+      <button id="fcKnow" class="btn btn-primary"><i data-lucide="check" class="w-4 h-4"></i>Sabia</button>
+      <button id="fcNext" class="btn btn-blue">Seguinte<i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+    </div>
+    <p class="text-center text-sm text-gray-500 mt-3">Sabidas: <span id="fcKnown">0</span> / <span id="fcTot2">81</span></p>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="sec-quiz" class="section">
+  <h2 class="text-2xl mb-4 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-6 h-6 text-blue-700"></i>Quiz Formativo</h2>
+  <div id="quizIntro" class="card p-6">
+    <p class="text-gray-700 mb-3">Vais responder a <strong>30 questões aleatórias</strong> de um banco de 60, com 6 tipos de pergunta diferentes. Recebes feedback explicativo no final.</p>
+    <ul class="text-sm text-gray-700 mb-4 space-y-1">
+      <li class="flex gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"></i>Escolha múltipla, caixas de verificação, V/F, correspondência, ordenação e resposta curta</li>
+      <li class="flex gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"></i>Dica disponível em cada questão</li>
+      <li class="flex gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5"></i>O teu progresso é guardado no dispositivo</li>
+    </ul>
+    <div id="quizResumePanel" class="hidden mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+      <i data-lucide="info" class="w-4 h-4 inline text-amber-600"></i> Tens um quiz em curso. <button id="btnResume" class="font-bold underline">Retomar</button>
+    </div>
+    <button id="btnStartQuiz" class="btn btn-primary"><i data-lucide="play" class="w-4 h-4"></i>Iniciar Quiz</button>
+  </div>
+
+  <div id="quizPlay" class="hidden">
+    <div class="card p-4 mb-4">
+      <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+        <span class="font-semibold">Questão <span id="qIdx">1</span> de 30</span>
+        <div class="flex gap-3 text-sm">
+          <span class="text-green-700"><i data-lucide="check" class="w-4 h-4 inline"></i> <span id="qOK">0</span></span>
+          <span class="text-red-700"><i data-lucide="x" class="w-4 h-4 inline"></i> <span id="qERR">0</span></span>
+          <span class="text-gray-500"><i data-lucide="minus" class="w-4 h-4 inline"></i> <span id="qSKIP">0</span></span>
+        </div>
+      </div>
+      <div class="progress-bar"><div id="qProg" class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="qBody" class="card p-5"></div>
+    <div class="flex justify-between mt-4 gap-2 flex-wrap">
+      <button id="qHint" class="btn btn-ghost"><i data-lucide="lightbulb" class="w-4 h-4"></i>Dica</button>
+      <div class="flex gap-2">
+        <button id="qSkip" class="btn btn-ghost"><i data-lucide="skip-forward" class="w-4 h-4"></i>Ignorar</button>
+        <button id="qSubmit" class="btn btn-primary"><i data-lucide="send" class="w-4 h-4"></i>Validar</button>
+        <button id="qNext" class="btn btn-blue hidden">Seguinte<i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quizResults" class="hidden"></div>
+</section>
+
+<!-- GLOSSÁRIO -->
+<section id="sec-glossario" class="section">
+  <h2 class="text-2xl mb-4 flex items-center gap-2"><i data-lucide="book-marked" class="w-6 h-6 text-orange-500"></i>Glossário de Termos-Chave</h2>
+  <input id="glosSearch" type="text" placeholder="Pesquisar termo…" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+  <div id="glosWrap" class="grid sm:grid-cols-2 gap-3"></div>
+</section>
+
+
+<!-- LABORATÓRIO -->
+<section id="sec-laboratorio" class="section">
+  <h2 class="text-2xl mb-2 flex items-center gap-2"><i data-lucide="flask-conical" class="w-6 h-6 text-orange-500"></i>Laboratório LEGO</h2>
+  <p class="text-gray-700 mb-2">Constrói a análise morfossintática como peças de LEGO! Para cada palavra, escolhe a sua <span class="text-orange-600 font-semibold">classe morfológica</span> (peça laranja) e a sua <span class="text-blue-700 font-semibold">função sintática</span> (peça azul).</p>
+  <p class="text-sm text-gray-500 mb-4"><i data-lucide="info" class="w-4 h-4 inline"></i> Toca em cada encaixe vazio (+) para escolher uma opção.</p>
+
+  <div id="labMenu">
+    <h3 class="text-lg mb-3">Escolhe uma frase para analisar:</h3>
+    <div id="labSentences" class="grid sm:grid-cols-2 gap-3"></div>
+  </div>
+
+  <div id="labPlay" class="hidden">
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <button id="labBack" class="btn btn-ghost"><i data-lucide="arrow-left" class="w-4 h-4"></i>Frases</button>
+      <span id="labLevel" class="badge pill-blue"></span>
+    </div>
+    <div class="card mb-3">
+      <div class="p-4 border-b border-gray-100">
+        <p class="text-xs text-gray-500 mb-1">Frase a analisar:</p>
+        <p id="labFrase" class="text-lg sm:text-xl italic text-navy font-semibold"></p>
+      </div>
+      <div class="lab-stage">
+        <div id="labBricks" class="lab-bricks"></div>
+      </div>
+    </div>
+    <div class="flex justify-between gap-2 flex-wrap">
+      <button id="labReset" class="btn btn-ghost"><i data-lucide="rotate-ccw" class="w-4 h-4"></i>Limpar</button>
+      <div class="flex gap-2">
+        <button id="labHint" class="btn btn-ghost"><i data-lucide="lightbulb" class="w-4 h-4"></i>Dica</button>
+        <button id="labValidate" class="btn btn-primary"><i data-lucide="check-check" class="w-4 h-4"></i>Validar</button>
+      </div>
+    </div>
+    <div id="labFeedback" class="hidden mt-4"></div>
+  </div>
+</section>
+
+<!-- PICKER SHEET -->
+<div class="more-sheet" id="pickerSheet" onclick="closePicker(event)">
+  <div class="more-sheet-card" onclick="event.stopPropagation()">
+    <div class="more-handle"></div>
+    <div class="flex justify-between items-start mb-1">
+      <div>
+        <h3 id="pickerTitle" class="text-lg">Escolhe uma opção</h3>
+        <p id="pickerWord" class="text-sm text-gray-500"></p>
+      </div>
+      <button onclick="closePicker()" class="btn btn-ghost p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div id="pickerOptions" class="picker-grid mt-3"></div>
+    <button id="pickerClear" class="btn btn-ghost w-full mt-3 justify-center"><i data-lucide="eraser" class="w-4 h-4"></i>Apagar escolha</button>
+  </div>
+</div>
+
+
+</main>
+
+<footer class="border-t border-gray-200 bg-white mt-10">
+  <div class="max-w-7xl mx-auto px-4 py-5 text-center text-sm text-gray-600">
+    Teodósio Faria ©2026 · Guia Prático de Análise Morfológica e Sintática da Língua Portuguesa
+  </div>
+</footer>
+
+<!-- IMAGE MODAL -->
+<div id="modalBg" class="modal-bg" onclick="closeModal(event)">
+  <div class="relative" onclick="event.stopPropagation()">
+    <button class="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center" onclick="closeModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <img id="modalImg" class="modal-img" src="" alt="">
+  </div>
+</div>
+
+<!-- USER GUIDE MODAL -->
+<div id="guideModal" class="modal-bg" onclick="closeGuide(event)">
+  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+    <div class="p-6">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-2xl">Guia do Utilizador</h3>
+        <button onclick="closeGuide()" class="btn btn-ghost p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="space-y-4 text-gray-700 text-sm">
+        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="home" class="w-4 h-4"></i>Início</h4><p>Visão geral, estatísticas e o exemplo-chave «Maria comprou um carro» comparado nas duas análises.</p></div>
+        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="image" class="w-4 h-4"></i>Infografia</h4><p>Imagem-síntese. Clica para ampliar em modo de zoom.</p></div>
+        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="presentation" class="w-4 h-4"></i>Slides</h4><p>13 diapositivos com navegação por setas ou miniaturas. No telemóvel, desliza ou usa os botões.</p></div>
+        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="headphones" class="w-4 h-4"></i>Podcast</h4><p>Reprodutor de áudio para ouvires a explicação sonora.</p></div>
+        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4"></i>Resumos</h4><p>Cinco resumos com efeito acordeão. Clica nos cabeçalhos para abrir/fechar.</p></div>
+        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4"></i>Flashcards</h4><p>81 cartas. Clica na carta para virar. «Sabia» marca como aprendida e avança automaticamente.</p></div>
+        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4"></i>Quiz</h4><p>30 questões aleatórias de 60. No final, podes rever todas as respostas ou refazer.</p></div>
+        <div><h4 class="font-bold text-navy mb-1 flex items-center gap-2"><i data-lucide="book-marked" class="w-4 h-4"></i>Glossário</h4><p>14 termos-chave com pesquisa rápida.</p></div>
+        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200"><strong>💾 Persistência:</strong> O teu progresso (flashcards sabidas, quiz em curso) fica guardado no teu dispositivo (localStorage).</div>
+        <div class="p-3 bg-blue-50 rounded-lg border border-blue-200"><strong>📁 Ficheiros:</strong> Para imagens e áudio funcionarem, coloca <code>infografia.jpg</code>, <code>podcast.mp3</code> e <code>Diapositivo1.jpg</code>…<code>Diapositivo13.jpg</code> na mesma pasta do HTML.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============== DATA ==============
+const QUESTOES = [{"id": 1, "tipo": "Escolha Múltipla", "pergunta": "A morfologia é a parte da gramática que se foca em quê?", "opcoes": ["A) Na função que a palavra desempenha dentro da oração.", "B) Na palavra em si (sozinha), de acordo com a classe gramatical.", "C) Apenas na análise dos verbos e substantivos comuns.", "D) Na concordância global entre todos os termos da frase."], "resposta_correta": "B) Na palavra em si (sozinha), de acordo com a classe gramatical.", "dica": "Lembre-se da diferença central apontada no texto entre estudar a palavra 'sozinha' ou 'em relação às outras'.", "feedback_explicativo": "A resposta certa é a B porque a morfologia é a parte da gramática que considera a palavra em si (sozinha) [1]. Estuda as palavras de acordo com a classe gramatical a que pertencem, tais como substantivos, verbos e adjetivos [4, 6]. A opção A está incorreta porque descreve o foco da sintaxe [4]."}, {"id": 2, "tipo": "Caixas de Verificação", "pergunta": "Quais dos seguintes termos fazem parte exclusivamente da análise sintática?", "opcoes": ["A) Sujeito", "B) Substantivo", "C) Predicado", "D) Objeto direto", "E) Artigo definido"], "resposta_correta": ["A) Sujeito", "C) Predicado", "D) Objeto direto"], "dica": "Pense nas funções que as palavras desempenham dentro do contexto de uma frase, e não nas 10 classes de palavras tradicionais.", "feedback_explicativo": "As opções A, C e D estão corretas. O sujeito, predicado e objeto direto são elementos inerentes ao estudo da sintaxe, que avalia a função exercida pelas palavras num contexto linguístico [3, 4]. As opções B e E (substantivo e artigo) estão incorretas neste contexto, pois são as classificações da análise morfológica [4, 6]."}, {"id": 3, "tipo": "Verdadeiro / Falso", "pergunta": "Numa oração, uma mesma palavra exerce, em simultâneo, duas funções diferentes: a morfológica e a sintática.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Verdadeiro", "dica": "Pense no exemplo da palavra 'Maria' na frase 'Maria comprou um carro' e no que ela representa nas duas análises.", "feedback_explicativo": "A afirmação é Verdadeira. O texto-base esclarece perfeitamente que uma palavra exerce duas funções na oração: a morfológica (relativa à sua classe inerente, como ser um substantivo) e a sintática (relativa à função que desempenha em relação aos outros termos, como ser um sujeito) [2]."}, {"id": 4, "tipo": "Correspondência", "pergunta": "Avalie as seguintes afirmações referentes aos termos da frase 'A manhã está ensolarada' e faça a correspondência com a validação 'Correto' ou 'Incorreto'.", "opcoes_de_correspondencia": {"A": "'Manhã' é morfologicamente um substantivo.", "B": "'Está' é sintaticamente o sujeito simples.", "C": "'Ensolarada' é sintaticamente o predicativo do sujeito.", "D": "'A' é morfologicamente um pronome."}, "resposta_correta": {"A": "Correto", "B": "Incorreto", "C": "Correto", "D": "Incorreto"}, "dica": "Tenha o cuidado de separar o que é a classificação da palavra isolada (morfologia) do papel desempenhado por ela na frase (sintaxe).", "feedback_explicativo": "A opção A está Correta, pois isoladamente 'manhã' é um substantivo [5]. A opção B está Incorreta porque 'está' é verbo, e o sujeito simples da frase é 'A manhã' [5]. A opção C está Correta, dado que 'ensolarada' revela uma característica do sujeito, constituindo o predicativo do sujeito [5]. A opção D está Incorreta porque 'A' funciona morfologicamente como artigo, não como pronome [5]."}, {"id": 5, "tipo": "Ordenação", "pergunta": "Ordene as classes gramaticais da coluna abaixo para que correspondam sequencialmente às palavras da frase: 'Maria comprou um carro'.", "itens_para_ordenar": ["Artigo", "Substantivo próprio", "Substantivo comum", "Verbo"], "resposta_correta": ["1º: Substantivo próprio", "2º: Verbo", "3º: Artigo", "4º: Substantivo comum"], "dica": "Faça a análise morfológica passo a passo da esquerda para a direita: analise primeiro o nome próprio, depois a ação efetuada, o determinante que se segue e, por fim, o objeto comprado.", "feedback_explicativo": "A ordem correta reflete a análise morfológica de cada termo. Respectivamente: 'Maria' (Substantivo próprio) -> 'comprou' (Verbo) -> 'um' (Artigo) -> 'carro' (Substantivo comum) [2, 7]."}, {"id": 6, "tipo": "Resposta Curta", "pergunta": "Na oração 'Acreditamos sempre em dias melhores', qual é o sujeito da frase e qual o seu tipo sintático?", "resposta_correta": "Sujeito oculto (nós).", "dica": "Observe a terminação (desinência) verbal da ação 'acreditamos' para descobrir quem a pratica, mesmo que não esteja escrito.", "feedback_explicativo": "A resposta correta é 'sujeito oculto (nós)'. De acordo com a análise sintática, o sujeito desta oração não está explícito verbalmente, mas é perfeitamente revelado e identificado pela desinência de número da primeira pessoa do plural ('-mos') retratada no verbo 'acreditar' [3]."}, {"id": 7, "tipo": "Escolha Múltipla", "pergunta": "Na oração 'Marcos e Paulo gostam de estudar todos os dias', qual é a classificação sintática correta dos termos 'Marcos e Paulo'?", "opcoes": ["A) Sujeito simples", "B) Sujeito composto", "C) Objeto direto", "D) Predicado verbal"], "resposta_correta": "B) Sujeito composto", "dica": "Verifique o número de núcleos (nomes principais) que estão a praticar a ação de gostar.", "feedback_explicativo": "A opção B está correta. 'Marcos e Paulo' formam um sujeito composto porque a oração possui dois núcleos (dois sujeitos que praticam a ação). A opção A está incorreta porque um sujeito simples teria apenas um núcleo."}, {"id": 8, "tipo": "Caixas de Verificação", "pergunta": "Na análise morfológica da frase 'Alguns candidatos desistiram de fazer as provas', quais das seguintes classificações estão corretas?", "opcoes": ["A) 'Alguns' é um pronome indefinido.", "B) 'candidatos' é um adjetivo.", "C) 'desistiram' é um verbo.", "D) 'as' é uma preposição.", "E) 'provas' é um substantivo comum."], "resposta_correta": ["A) 'Alguns' é um pronome indefinido.", "C) 'desistiram' é um verbo.", "E) 'provas' é um substantivo comum."], "dica": "Lembre-se que a morfologia estuda as palavras individualmente de acordo com as suas 10 classes gramaticais.", "feedback_explicativo": "As opções A, C e E estão corretas de acordo com a análise morfológica do texto. A opção B está incorreta porque 'candidatos' é um substantivo comum e não um adjetivo. A opção D está incorreta porque 'as' funciona como um artigo definido e não como preposição."}, {"id": 9, "tipo": "Verdadeiro / Falso", "pergunta": "Na oração 'Marcos e Paulo gostam de estudar todos os dias', a expressão 'de estudar' desempenha a função sintática de objeto indireto.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Verdadeiro", "dica": "Observe se a expressão completa o sentido do verbo anterior ('gostam') e se é introduzida por uma preposição.", "feedback_explicativo": "A afirmação é Verdadeira. A expressão 'de estudar' complementa o sentido do verbo transitar 'gostar' (quem gosta, gosta de algo), sendo introduzida por uma preposição ('de'). Portanto, sintaticamente, funciona como objeto indireto."}, {"id": 10, "tipo": "Correspondência", "pergunta": "Faça a correspondência entre os termos da frase 'Alguns candidatos desistiram de fazer as provas' e a sua respetiva validação na análise morfológica (Correto/Incorreto).", "opcoes_de_correspondencia": {"A": "'de' é uma preposição.", "B": "'fazer' é um substantivo.", "C": "'provas' é um verbo.", "D": "'Alguns' é um pronome indefinido."}, "resposta_correta": {"A": "Correto", "B": "Incorreto", "C": "Incorreto", "D": "Correto"}, "dica": "Analise a classe gramatical de cada palavra isoladamente, ou seja, se representam nomes, ações, ligações, etc.", "feedback_explicativo": "A opção A é Correta ('de' é preposição). A opção B é Incorreta, pois 'fazer' é um verbo no infinitivo, não um substantivo. A opção C é Incorreta, porque 'provas' atua como substantivo comum neste contexto. A opção D é Correta, já que 'Alguns' quantifica o substantivo de forma vaga, sendo um pronome indefinido."}, {"id": 11, "tipo": "Ordenação", "pergunta": "Ordene as classificações morfológicas para que correspondam, da esquerda para a direita, às palavras da expressão: 'Todos os dias'.", "itens_para_ordenar": ["Artigo definido", "Substantivo simples", "Pronome indefinido"], "resposta_correta": ["1º: Pronome indefinido", "2º: Artigo definido", "3º: Substantivo simples"], "dica": "Siga a ordem exata das três palavras: 'Todos', depois 'os', e finalmente 'dias'.", "feedback_explicativo": "A ordem correta obedece à análise morfológica palavra a palavra. 'Todos' é um pronome indefinido; 'os' é um artigo definido; e 'dias' é um substantivo simples."}, {"id": 12, "tipo": "Resposta Curta", "pergunta": "Segundo a análise sintática da frase 'Acreditamos sempre em dias melhores', qual é a justificação para que 'acreditamos sempre em dias melhores' seja classificado como um predicado verbal?", "resposta_correta": "Porque é revelado por meio de uma ação expressa pelo sujeito.", "dica": "O foco está no tipo de verbo presente. Pense se o verbo 'acreditar' exprime um estado ou uma ação.", "feedback_explicativo": "É um predicado verbal porque o seu núcleo é um verbo nocional ('acreditar'), ou seja, o predicado revela uma ação que é expressa/praticada pelo sujeito, em oposição a um predicado nominal que exprimiria apenas um estado ou qualidade."}, {"id": 13, "tipo": "Escolha Múltipla", "pergunta": "Qual é a parte da gramática que foca o seu estudo na palavra isoladamente (em si)?", "opcoes": ["A) Sintaxe", "B) Fonética", "C) Morfologia", "D) Semântica"], "resposta_correta": "C) Morfologia", "dica": "Lembre-se da distinção: uma estuda a classe da palavra sozinha, a outra estuda o seu papel com as restantes.", "feedback_explicativo": "A resposta correta é a C. De acordo com os flashcards, a morfologia foca-se na classe gramatical a que a palavra pertence, estudando-a de forma isolada, enquanto a sintaxe a estuda em relação a um contexto."}, {"id": 14, "tipo": "Caixas de Verificação", "pergunta": "De acordo com os domínios da gramática referidos, quais dos seguintes termos pertencem à análise sintática?", "opcoes": ["A) Vocativo", "B) Preposição", "C) Agente da passiva", "D) Numeral", "E) Predicado"], "resposta_correta": ["A) Vocativo", "C) Agente da passiva", "E) Predicado"], "dica": "Selecione as opções que indicam a função ou papel das palavras na oração, descartando as opções que são classes gramaticais.", "feedback_explicativo": "As opções A, C e E estão corretas, pois referem-se a funções que as palavras desempenham na oração (Sintaxe). Preposição e numeral (B e D) são classes gramaticais, logo, pertencem ao estudo da Morfologia."}, {"id": 15, "tipo": "Verdadeiro / Falso", "pergunta": "A análise que combina o estudo da classe gramatical (isolada) com a função da palavra na oração denomina-se análise morfossintática.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Verdadeiro", "dica": "Repare na construção da própria palavra: é a junção dos nomes das duas áreas da gramática em estudo.", "feedback_explicativo": "A afirmação é Verdadeira. A análise morfossintática é pedida quando o professor pretende que o aluno identifique simultaneamente a classificação morfológica e a função sintática de um termo."}, {"id": 16, "tipo": "Correspondência", "pergunta": "Faça a correspondência (Correto/Incorreto) entre as afirmações sobre os conceitos fundamentais da Morfologia e Sintaxe.", "opcoes_de_correspondencia": {"A": "A morfologia foca-se no papel (ou função) que a palavra desempenha dentro de um contexto.", "B": "A sintaxe estuda as dez classes gramaticais.", "C": "A morfologia foca-se na classe gramatical a que a palavra pertence.", "D": "A sintaxe foca-se na função da palavra em relação às outras na mesma oração."}, "resposta_correta": {"A": "Incorreto", "B": "Incorreto", "C": "Correto", "D": "Correto"}, "dica": "Associe sempre 'Morfologia' a 'Classe' e 'Sintaxe' a 'Função/Papel'.", "feedback_explicativo": "As opções A e B estão Incorretas porque os conceitos estão trocados. As opções C e D estão Corretas pois definem exatamente os âmbitos da morfologia (classe isolada) e da sintaxe (função relacional)."}, {"id": 17, "tipo": "Ordenação", "pergunta": "Ordene as classificações sintáticas para que correspondam sequencialmente aos termos da frase 'Maria comprou um carro'.", "itens_para_ordenar": ["Adjunto adnominal", "Núcleo do predicado verbal", "Núcleo do objeto direto", "Sujeito simples"], "resposta_correta": ["1º: Sujeito simples", "2º: Núcleo do predicado verbal", "3º: Adjunto adnominal", "4º: Núcleo do objeto direto"], "dica": "Analise o papel de cada palavra: quem pratica a ação? Qual é a ação? O que a acompanha? O que recebe a ação?", "feedback_explicativo": "A ordem correta reflete o papel de cada palavra na oração: 'Maria' (Sujeito simples) -> 'comprou' (Núcleo do predicado verbal) -> 'um' (Adjunto adnominal) -> 'carro' (Núcleo do objeto direto)."}, {"id": 18, "tipo": "Resposta Curta", "pergunta": "Segundo o texto, quantas são as classes gramaticais estudadas na área da morfologia?", "resposta_correta": "Dez.", "dica": "Pense no número total de categorias em que podemos dividir todas as palavras da língua portuguesa (substantivos, adjetivos, verbos, etc.).", "feedback_explicativo": "A resposta correta é Dez. A morfologia divide as palavras em dez classes gramaticais: substantivos, artigos, pronomes, verbos, adjetivos, conjunções, interjeições, preposições, advérbios e numerais."}, {"id": 19, "tipo": "Escolha Múltipla", "pergunta": "Na frase 'Acreditamos sempre em dias melhores', o termo 'melhores' exerce a função sintática de:", "opcoes": ["A) Objeto direto", "B) Predicativo do objeto", "C) Adjunto adverbial", "D) Sujeito oculto"], "resposta_correta": "B) Predicativo do objeto", "dica": "O termo 'melhores' está a dar uma qualidade ou característica a quê?", "feedback_explicativo": "A opção B está correta. 'Melhores' é um predicativo do objeto porque tem a finalidade de conferir uma característica ao objeto ('dias')."}, {"id": 20, "tipo": "Caixas de Verificação", "pergunta": "Na oração 'Alguns candidatos desistiram de fazer as provas', quais são as classificações morfológicas corretas?", "opcoes": ["A) 'candidatos' é um substantivo comum.", "B) 'de' é uma conjunção.", "C) 'fazer' é um verbo no infinitivo.", "D) 'as' é um artigo definido."], "resposta_correta": ["A) 'candidatos' é um substantivo comum.", "C) 'fazer' é um verbo no infinitivo.", "D) 'as' é um artigo definido."], "dica": "Avalie a classe isolada de cada palavra. O termo 'de' serve apenas para ligar elementos e introduzir um complemento.", "feedback_explicativo": "As opções A, C e D refletem corretamente a classe gramatical das palavras. A opção B está incorreta porque 'de' atua morfologicamente como uma preposição, não como uma conjunção."}, {"id": 21, "tipo": "Verdadeiro / Falso", "pergunta": "Na análise sintática de 'A manhã está ensolarada', o predicado é classificado como verbal porque o verbo indica uma ação.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Falso", "dica": "Verifique o tipo de verbo presente ('está'). Ele indica uma ação física que a manhã realiza ou o estado em que a manhã se encontra?", "feedback_explicativo": "A afirmação é Falsa. O predicado é classificado como nominal porque o verbo 'estar' denota um estado (é um verbo de ligação), e não uma ação."}, {"id": 22, "tipo": "Correspondência", "pergunta": "Avalie as afirmações sobre os termos da oração 'A manhã está ensolarada' com Correto ou Incorreto.", "opcoes_de_correspondencia": {"A": "'ensolarada' é morfologicamente um adjetivo.", "B": "'A manhã' atua como sujeito composto.", "C": "'está' funciona como um verbo de ligação.", "D": "'ensolarada' atua sintaticamente como objeto direto."}, "resposta_correta": {"A": "Correto", "B": "Incorreto", "C": "Correto", "D": "Incorreto"}, "dica": "Lembre-se que termos que revelam qualidades do sujeito com verbos de ligação têm uma função sintática muito específica.", "feedback_explicativo": "A e C estão Corretas. B está Incorreta porque 'A manhã' é um sujeito simples (apenas um núcleo). D está Incorreta porque 'ensolarada' revela uma característica do sujeito, sendo o predicativo do sujeito, e não um objeto direto."}, {"id": 23, "tipo": "Ordenação", "pergunta": "Ordene as classes morfológicas abaixo para que correspondam, por ordem, às palavras: 'Alguns candidatos desistiram'.", "itens_para_ordenar": ["Verbo", "Pronome indefinido", "Substantivo comum"], "resposta_correta": ["1º: Pronome indefinido", "2º: Substantivo comum", "3º: Verbo"], "dica": "Identifique primeiro o termo vago/quantificador, depois o nome de quem faz a ação, e por fim a ação efetuada.", "feedback_explicativo": "A sequência morfológica exata é: 'Alguns' (Pronome indefinido), 'candidatos' (Substantivo comum) e 'desistiram' (Verbo no pretérito perfeito)."}, {"id": 24, "tipo": "Resposta Curta", "pergunta": "Na frase 'Maria comprou um carro', qual é a exata função sintática da palavra 'carro'?", "resposta_correta": "Núcleo do objeto direto.", "dica": "Lembre-se de que a expressão inteira 'um carro' é o objeto, mas o substantivo principal assume um papel central nesse objeto.", "feedback_explicativo": "A resposta é 'Núcleo do objeto direto'. Enquanto 'um carro' forma o objeto direto completo, a palavra 'carro', sendo o elemento principal da expressão, desempenha a função de núcleo."}, {"id": 25, "tipo": "Escolha Múltipla", "pergunta": "Qual é a classe gramatical da palavra 'alguns' na frase 'Alguns candidatos desistiram'?", "opcoes": ["A) Pronome indefinido", "B) Artigo definido", "C) Adjetivo", "D) Advérbio"], "resposta_correta": "A) Pronome indefinido", "dica": "Esta palavra refere-se aos candidatos de uma forma vaga e indeterminada.", "feedback_explicativo": "A opção A é a correta. Morfologicamente, 'alguns' é um pronome indefinido, pois quantifica o substantivo de maneira não exata."}, {"id": 26, "tipo": "Caixas de Verificação", "pergunta": "Quais dos seguintes termos fazem parte da lista das 10 classes de palavras estudadas na Morfologia?", "opcoes": ["A) Interjeição", "B) Conjunção", "C) Aposto", "D) Advérbio", "E) Adjunto adnominal"], "resposta_correta": ["A) Interjeição", "B) Conjunção", "D) Advérbio"], "dica": "Exclua as opções que dependem do contexto de uma frase para existir (funções sintáticas).", "feedback_explicativo": "As opções A, B e D estão corretas, pois são categorias fixas da palavra em si (Morfologia). Aposto e adjunto adnominal (C e E) são funções relacionais e pertencem à Sintaxe."}, {"id": 27, "tipo": "Verdadeiro / Falso", "pergunta": "Na oração 'Marcos e Paulo gostam de estudar', o sujeito é classificado como composto porque a ação é partilhada por dois núcleos.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Verdadeiro", "dica": "Conte os nomes principais que estão a conjugar o verbo 'gostar'.", "feedback_explicativo": "A afirmação é Verdadeira. A presença de dois núcleos ativos ('Marcos' e 'Paulo') classifica sintaticamente o sujeito desta oração como sujeito composto."}, {"id": 28, "tipo": "Correspondência", "pergunta": "Avalie como Correto ou Incorreto as afirmações sobre a análise da palavra 'sempre' na frase 'Acreditamos sempre...'", "opcoes_de_correspondencia": {"A": "Morfologicamente, é classificada como um advérbio.", "B": "Sintaticamente, atua como um adjunto adverbial de tempo.", "C": "Morfologicamente, é classificada como um adjetivo.", "D": "Sintaticamente, atua como um objeto direto."}, "resposta_correta": {"A": "Correto", "B": "Correto", "C": "Incorreto", "D": "Incorreto"}, "dica": "A palavra exprime uma circunstância temporal. Como é chamada na classe de palavras e como é chamada na função da oração?", "feedback_explicativo": "A e B estão Corretas, revelando a dualidade morfossintática: na classe isolada (morfologia) é um advérbio, e na função na frase (sintaxe) é um adjunto adverbial de tempo. C e D estão Incorretas."}, {"id": 29, "tipo": "Ordenação", "pergunta": "Ordene as funções sintáticas para que acompanhem as respetivas partes da oração: 'Marcos e Paulo | gostam de estudar | todos os dias'.", "itens_para_ordenar": ["Adjunto adverbial de tempo", "Sujeito composto", "Predicado verbal"], "resposta_correta": ["1º: Sujeito composto", "2º: Predicado verbal", "3º: Adjunto adverbial de tempo"], "dica": "Siga a divisão proposta na pergunta (Quem faz a ação | Qual é a ação central | Qual a circunstância da ação).", "feedback_explicativo": "A sequência analítica correta é: 'Marcos e Paulo' formam o sujeito composto; 'gostam de estudar' é o predicado verbal; e 'todos os dias' é a expressão que funciona como adjunto adverbial de tempo."}, {"id": 30, "tipo": "Resposta Curta", "pergunta": "Na expressão 'desistiram de fazer as provas', a que conjugação verbal pertence o verbo 'fazer'?", "resposta_correta": "Segunda conjugação (-er).", "dica": "Observe a terminação do verbo no seu estado infinitivo.", "feedback_explicativo": "A resposta correta é a segunda conjugação, uma vez que o verbo 'fazer' termina em '-er' no infinitivo, detalhe que pertence à análise morfológica do verbo."}, {"id": 31, "tipo": "Escolha Múltipla", "pergunta": "De acordo com as explicações sintáticas, o 'predicativo do objeto' tem a finalidade principal de conferir o quê ao objeto?", "opcoes": ["A) Uma ação transitiva", "B) Uma circunstância de tempo", "C) Uma característica ou qualidade", "D) Uma preposição de ligação"], "resposta_correta": "C) Uma característica ou qualidade", "dica": "Pense no exemplo da palavra 'melhores' aplicada aos 'dias'.", "feedback_explicativo": "A opção C é a correta. Sintaticamente, a função do predicativo do objeto é atribuir uma característica (qualidade) ao objeto direto da frase."}, {"id": 32, "tipo": "Caixas de Verificação", "pergunta": "Sobre a oração 'Acreditamos sempre em dias melhores', selecione as afirmações que são verdadeiras na análise sintática.", "opcoes": ["A) O sujeito é classificado como oculto (nós).", "B) A terminação '-mos' ajuda a identificar o sujeito.", "C) O predicado desta frase é do tipo nominal.", "D) 'em dias melhores' funciona como objeto indireto."], "resposta_correta": ["A) O sujeito é classificado como oculto (nós).", "B) A terminação '-mos' ajuda a identificar o sujeito.", "D) 'em dias melhores' funciona como objeto indireto."], "dica": "Atenção ao tipo de verbo presente para validar a opção C.", "feedback_explicativo": "As opções A, B e D estão corretas. A opção C está incorreta porque 'acreditar' é um verbo que expressa ação, formando assim um predicado verbal, e não nominal."}, {"id": 33, "tipo": "Verdadeiro / Falso", "pergunta": "Na oração 'Maria comprou um carro', a palavra 'um' atua sintaticamente como adjunto adnominal.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Verdadeiro", "dica": "Lembre-se que morfologicamente 'um' é artigo, mas sintaticamente acompanha e determina um nome (o carro).", "feedback_explicativo": "A afirmação é Verdadeira. Embora 'um' seja um artigo na classificação morfológica, o papel sintático que desempenha ao acompanhar e modificar o núcleo do objeto ('carro') é o de adjunto adnominal."}, {"id": 34, "tipo": "Correspondência", "pergunta": "Indique se está Correto ou Incorreto o papel atribuído a cada palavra da frase 'Acreditamos sempre em dias melhores'.", "opcoes_de_correspondencia": {"A": "'sempre' é o núcleo do sujeito.", "B": "'melhores' é o predicativo do objeto.", "C": "'dias' é o objeto direto da frase.", "D": "'Acreditamos' revela o sujeito pela sua desinência."}, "resposta_correta": {"A": "Incorreto", "B": "Correto", "C": "Incorreto", "D": "Correto"}, "dica": "Releia a explicação sintática desta frase nos seus apontamentos sobre complementos indiretos.", "feedback_explicativo": "B e D estão Corretas. A opção A está Incorreta ('sempre' é adjunto adverbial). A opção C está Incorreta porque 'dias' faz parte de um objeto indireto introduzido pela preposição 'em' (quem acredita, acredita *em* algo)."}, {"id": 35, "tipo": "Ordenação", "pergunta": "Ordene as classificações morfológicas para que representem as palavras da expressão 'de fazer as provas'.", "itens_para_ordenar": ["Substantivo comum", "Preposição", "Artigo definido", "Verbo"], "resposta_correta": ["1º: Preposição", "2º: Verbo", "3º: Artigo definido", "4º: Substantivo comum"], "dica": "Siga a ordem de leitura: uma ligação, uma ação, um determinante e o nome final.", "feedback_explicativo": "A sequência morfológica correta é: 'de' (Preposição) -> 'fazer' (Verbo) -> 'as' (Artigo definido) -> 'provas' (Substantivo comum)."}, {"id": 36, "tipo": "Resposta Curta", "pergunta": "Qual é a função sintática da expressão 'de estudar' na oração 'Marcos e Paulo gostam de estudar'?", "resposta_correta": "Objeto indireto.", "dica": "Observe que a expressão complementa o sentido do verbo 'gostar' e é iniciada por uma preposição ('de').", "feedback_explicativo": "A resposta correta é 'Objeto indireto'. Sintaticamente, a expressão complementa o sentido de um verbo transitivo e está ligada a ele através de uma preposição obrigatória."}, {"id": 37, "tipo": "Escolha Múltipla", "pergunta": "Complete a afirmação: 'Na análise _____, os termos são analisados passo a passo (isoladamente); já na análise _____, são analisados de acordo com a posição desempenhada.'", "opcoes": ["A) sintática / morfológica", "B) morfológica / sintática", "C) fonética / sintática", "D) semântica / morfológica"], "resposta_correta": "B) morfológica / sintática", "dica": "Lembre-se de qual área da gramática se foca nas 10 classes fixas das palavras e qual se foca na relação e posicionamento da palavra na frase.", "feedback_explicativo": "A opção B está correta. Segundo os conceitos estudados, a análise morfológica avalia as palavras passo a passo (isoladamente, descobrindo a sua classe), enquanto a análise sintática avalia a função posicional da palavra dentro do contexto da oração."}, {"id": 38, "tipo": "Caixas de Verificação", "pergunta": "Dos seguintes elementos gramaticais, selecione aqueles que são estudados exclusivamente na Sintaxe.", "opcoes": ["A) Predicado", "B) Agente da passiva", "C) Numeral", "D) Aposto", "E) Interjeição"], "resposta_correta": ["A) Predicado", "B) Agente da passiva", "D) Aposto"], "dica": "Selecione apenas os elementos que dependem de uma oração para existir. Exclua as classes de palavras independentes.", "feedback_explicativo": "As opções A, B e D estão corretas, pois predicado, agente da passiva e aposto são funções que as palavras assumem na oração, sendo objetos de estudo da Sintaxe. O numeral e a interjeição (C e E) são classes gramaticais estudadas na Morfologia."}, {"id": 39, "tipo": "Verdadeiro / Falso", "pergunta": "O termo 'numeral' pertence ao domínio da análise sintática.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Falso", "dica": "Pense se um numeral dita uma função posicional numa frase ou se é uma classificação fixa da própria palavra.", "feedback_explicativo": "A afirmação é Falsa. O numeral é uma das dez classes gramaticais da língua portuguesa e, portanto, pertence ao domínio da análise Morfológica."}, {"id": 40, "tipo": "Correspondência", "pergunta": "Faça a correspondência entre as seguintes afirmações e a sua exatidão (Correto/Incorreto) relativamente à área da gramática a que o termo pertence.", "opcoes_de_correspondencia": {"A": "'Interjeição' é um elemento da Sintaxe.", "B": "'Vocativo' é um elemento da Sintaxe.", "C": "'Conjunção' é um elemento da Morfologia.", "D": "'Adjunto adverbial' é um elemento da Morfologia."}, "resposta_correta": {"A": "Incorreto", "B": "Correto", "C": "Correto", "D": "Incorreto"}, "dica": "Lembre-se da regra de ouro: Morfologia = classes de palavras (10); Sintaxe = funções na oração.", "feedback_explicativo": "B e C estão Corretas ('Vocativo' é função sintática; 'Conjunção' é classe morfológica). A está Incorreta porque a 'Interjeição' é morfológica. D está Incorreta porque o 'Adjunto adverbial' é uma função sintática."}, {"id": 41, "tipo": "Ordenação", "pergunta": "Ordene as classificações morfológicas para corresponderem exatamente à sequência de palavras da frase: 'A manhã está ensolarada'.", "itens_para_ordenar": ["Substantivo", "Artigo", "Adjetivo", "Verbo"], "resposta_correta": ["1º: Artigo", "2º: Substantivo", "3º: Verbo", "4º: Adjetivo"], "dica": "Analise palavra a palavra da esquerda para a direita: 'A' -> 'manhã' -> 'está' -> 'ensolarada'.", "feedback_explicativo": "A sequência morfológica correta é: 'A' (Artigo definido) -> 'manhã' (Substantivo) -> 'está' (Verbo) -> 'ensolarada' (Adjetivo)."}, {"id": 42, "tipo": "Resposta Curta", "pergunta": "Na frase 'A manhã está ensolarada', qual é a função sintática exata da palavra 'ensolarada'?", "resposta_correta": "Predicativo do sujeito.", "dica": "Como o verbo 'estar' é um verbo de ligação (estado), o adjetivo que se segue não é um objeto direto, mas sim uma característica atribuída ao sujeito.", "feedback_explicativo": "A resposta correta é 'Predicativo do sujeito'. Sintaticamente, 'ensolarada' revela uma característica ou estado atribuído ao sujeito ('A manhã') através do verbo de ligação ('está')."}, {"id": 43, "tipo": "Escolha Múltipla", "pergunta": "Qual é a classe gramatical que foca a sua função na atribuição de qualidades ou características aos substantivos?", "opcoes": ["A) Advérbio", "B) Verbo", "C) Adjetivo", "D) Preposição"], "resposta_correta": "C) Adjetivo", "dica": "Pense na palavra 'ensolarada' ou 'melhores' e no que elas fazem aos nomes que acompanham.", "feedback_explicativo": "A opção C é a correta. Na morfologia, o adjetivo é a classe de palavras responsável por qualificar, caracterizar ou atribuir estados aos substantivos."}, {"id": 44, "tipo": "Caixas de Verificação", "pergunta": "Com base na sintaxe, selecione as opções que representam exemplos válidos de 'complementos verbais'.", "opcoes": ["A) Objeto direto", "B) Sujeito simples", "C) Objeto indireto", "D) Adjunto adnominal"], "resposta_correta": ["A) Objeto direto", "C) Objeto indireto"], "dica": "Complementos verbais servem, como o nome indica, para completar o sentido de um verbo que precisa de um alvo.", "feedback_explicativo": "As opções A e C estão corretas. Os objetos direto e indireto são elementos sintáticos classificados como complementos verbais porque finalizam a ideia/sentido de um verbo transitivo."}, {"id": 45, "tipo": "Verdadeiro / Falso", "pergunta": "A análise gramatical que identifica o objeto direto e o predicativo chama-se análise morfológica.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Falso", "dica": "Relembre: a análise que lida com 'objetos' e 'predicativos' estuda a relação entre as palavras.", "feedback_explicativo": "A afirmação é Falsa. A identificação de elementos relacionais e funcionais, como o objeto direto e o predicativo, faz parte exclusiva da análise sintática."}, {"id": 46, "tipo": "Correspondência", "pergunta": "Avalie como Correto ou Incorreto as análises sintáticas das parcelas da frase 'Marcos e Paulo gostam de estudar todos os dias'.", "opcoes_de_correspondencia": {"A": "'Marcos e Paulo' é o sujeito composto.", "B": "'gostam de estudar todos os dias' é o predicado nominal.", "C": "'de estudar' é o objeto indireto.", "D": "'todos os dias' é o adjunto adverbial de tempo."}, "resposta_correta": {"A": "Correto", "B": "Incorreto", "C": "Correto", "D": "Correto"}, "dica": "Analise com atenção o tipo de verbo principal da frase para descobrir se o predicado é nominal ou se expressa uma ação.", "feedback_explicativo": "A opção B está Incorreta porque a frase exprime uma ação (gostar/estudar), tratando-se de um predicado verbal e não nominal. As opções A, C e D estão Corretas de acordo com a análise sintática posicional."}, {"id": 47, "tipo": "Ordenação", "pergunta": "Ordene as classificações morfológicas da esquerda para a direita referentes às palavras da expressão: 'em dias melhores'.", "itens_para_ordenar": ["Adjetivo", "Preposição", "Substantivo comum"], "resposta_correta": ["1º: Preposição", "2º: Substantivo comum", "3º: Adjetivo"], "dica": "Siga a ordem estrita da leitura: primeiro a palavra de ligação, depois o nome, e por fim a qualidade desse nome.", "feedback_explicativo": "A sequência analítica morfológica correta é: 'em' (Preposição) -> 'dias' (Substantivo comum) -> 'melhores' (Adjetivo)."}, {"id": 48, "tipo": "Resposta Curta", "pergunta": "Na oração 'Acreditamos sempre...', o verbo 'acreditar' está conjugado em que pessoa e número para inferirmos o sujeito oculto?", "resposta_correta": "1ª pessoa do plural (nós).", "dica": "Observe a terminação '-mos' do verbo.", "feedback_explicativo": "A resposta correta é a 1ª pessoa do plural. A desinência '-mos' do verbo 'acreditamos' revela claramente que o sujeito oculto da frase é o pronome 'nós'."}, {"id": 49, "tipo": "Escolha Múltipla", "pergunta": "Qual é o núcleo do sujeito simples na frase 'A manhã está ensolarada'?", "opcoes": ["A) A", "B) manhã", "C) está", "D) ensolarada"], "resposta_correta": "B) manhã", "dica": "O sujeito completo é 'A manhã'. O núcleo é apenas a palavra principal, a mais importante desse sujeito.", "feedback_explicativo": "A opção B é a correta. Embora o sujeito seja 'A manhã', a palavra 'manhã' atua como o núcleo (a parte mais importante), enquanto o artigo 'A' atua apenas como determinante."}, {"id": 50, "tipo": "Caixas de Verificação", "pergunta": "Na sintaxe, palavras que indicam circunstâncias temporais assumem funções específicas. Das opções abaixo, quais expressões funcionam como 'adjunto adverbial de tempo' nos exemplos estudados?", "opcoes": ["A) sempre", "B) em dias melhores", "C) todos os dias", "D) um carro"], "resposta_correta": ["A) sempre", "C) todos os dias"], "dica": "Procure pelas expressões que respondem à pergunta 'quando?' a ação ocorreu ou ocorre.", "feedback_explicativo": "As opções A e C estão corretas. Tanto 'sempre' (na frase do acreditamos) como 'todos os dias' (na frase do Marcos e Paulo) indicam a circunstância temporal em que a ação verbal se desenrola, funcionando como adjuntos adverbiais de tempo."}, {"id": 51, "tipo": "Verdadeiro / Falso", "pergunta": "O termo 'sujeito' é uma categoria estritamente morfológica.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Falso", "dica": "Lembre-se do texto: uma palavra pode ser morfologicamente um substantivo, mas atuar como sujeito. Sujeito é classe ou função?", "feedback_explicativo": "A afirmação é Falsa. O 'sujeito' não é uma classe gramatical isolada, mas sim uma função relacional estudada na sintaxe."}, {"id": 52, "tipo": "Correspondência", "pergunta": "Avalie como Correto ou Incorreto as classificações morfológicas atribuídas à palavra destacada em MAIÚSCULAS nas expressões.", "opcoes_de_correspondencia": {"A": "EM dias melhores (Preposição)", "B": "dias MELHORES (Verbo)", "C": "AS provas (Artigo definido)", "D": "UM carro (Adjetivo)"}, "resposta_correta": {"A": "Correto", "B": "Incorreto", "C": "Correto", "D": "Incorreto"}, "dica": "Valide se a classe atribuída faz sentido para a natureza isolada da palavra. 'Um' é adjetivo? 'Melhor' é ação?", "feedback_explicativo": "A e C estão Corretas. A opção B é Incorreta porque 'melhores' é adjetivo, e não verbo. A opção D é Incorreta porque 'um' é artigo indefinido (ou numeral consoante o contexto rigoroso), mas nunca um adjetivo."}, {"id": 53, "tipo": "Ordenação", "pergunta": "Ordene sequencialmente as classificações morfológicas das palavras da frase: 'Marcos e Paulo'.", "itens_para_ordenar": ["Conjunção", "Substantivo próprio (2º núcleo)", "Substantivo próprio (1º núcleo)"], "resposta_correta": ["1º: Substantivo próprio (1º núcleo)", "2º: Conjunção", "3º: Substantivo próprio (2º núcleo)"], "dica": "Coloque por ordem de leitura: primeiro o primeiro nome, a palavra que os liga, e depois o segundo nome.", "feedback_explicativo": "A sequência morfológica é: 'Marcos' (Substantivo próprio) -> 'e' (Conjunção aditiva de ligação) -> 'Paulo' (Substantivo próprio)."}, {"id": 54, "tipo": "Resposta Curta", "pergunta": "Segundo a sintaxe, o que se procura identificar quando analisamos as palavras num determinado contexto linguístico?", "resposta_correta": "A função que as palavras desempenham.", "dica": "A resposta foca-se no objetivo principal da análise sintática que se opõe ao isolamento morfológico.", "feedback_explicativo": "A resposta correta é 'a função que as palavras desempenham'. A sintaxe estuda as palavras não pelo que elas são intrinsecamente, mas pelo papel estrutural e relacionai que assumem dentro de uma oração."}, {"id": 55, "tipo": "Escolha Múltipla", "pergunta": "A oração 'Maria comprou um carro' apresenta quantos núcleos no seu objeto direto?", "opcoes": ["A) Nenhum", "B) Um", "C) Dois", "D) Três"], "resposta_correta": "B) Um", "dica": "Identifique o objeto direto ('um carro') e veja quantas palavras atuam como o substantivo principal dessa expressão.", "feedback_explicativo": "A opção B está correta. A expressão 'um carro' possui apenas um núcleo (a palavra principal), que é o substantivo 'carro'."}, {"id": 56, "tipo": "Caixas de Verificação", "pergunta": "Quais das seguintes palavras representam 'verbos' (indicando ação ou estado) nos exemplos fornecidos nos seus textos?", "opcoes": ["A) comprou", "B) manhã", "C) desistiram", "D) gostam", "E) provas"], "resposta_correta": ["A) comprou", "C) desistiram", "D) gostam"], "dica": "Selecione apenas os termos que podem ser conjugados em tempos (passado, presente, futuro) e pessoas.", "feedback_explicativo": "As opções A, C e D são corretas, pois são conjugações verbais. As opções B e E ('manhã' e 'provas') estão incorretas, pois representam substantivos nas frases exemplificadas."}, {"id": 57, "tipo": "Verdadeiro / Falso", "pergunta": "Na oração 'Acreditamos sempre em dias melhores', o predicado é classificado como predicado verbal.", "opcoes": ["Verdadeiro", "Falso"], "resposta_correta": "Verdadeiro", "dica": "O tipo de predicado depende do verbo. O verbo 'acreditar' é uma ação praticada pelo sujeito ou apenas um estado de ligação?", "feedback_explicativo": "A afirmação é Verdadeira. Como a oração tem o seu núcleo num verbo de ação ('acreditar'), todo o segmento da frase (acreditamos sempre em dias melhores) forma um predicado verbal."}, {"id": 58, "tipo": "Correspondência", "pergunta": "Relativamente aos domínios de estudo da gramática, classifique as seguintes definições fundamentais como Correto ou Incorreto.", "opcoes_de_correspondencia": {"A": "A morfologia estuda as funções gramaticais posicinais.", "B": "A sintaxe estuda as 10 classes de palavras isoladas.", "C": "A morfologia estuda as classes gramaticais.", "D": "A sintaxe estuda as funções gramaticais."}, "resposta_correta": {"A": "Incorreto", "B": "Incorreto", "C": "Correto", "D": "Correto"}, "dica": "Não troque os conceitos: Classes = Morfologia; Funções = Sintaxe.", "feedback_explicativo": "C e D estão Corretas. A e B estão Incorretas porque os conceitos nas afirmações foram propositadamente trocados: a morfologia lida com as classes e a sintaxe com as funções."}, {"id": 59, "tipo": "Ordenação", "pergunta": "Ordene as classificações morfológicas da expressão verbal 'desistiram de fazer'.", "itens_para_ordenar": ["Preposição", "Verbo no pretérito perfeito", "Verbo no infinitivo"], "resposta_correta": ["1º: Verbo no pretérito perfeito", "2º: Preposição", "3º: Verbo no infinitivo"], "dica": "Siga a ordem em que as palavras aparecem: a primeira ação conjugada, a partícula de ligação, e a segunda ação na sua forma base.", "feedback_explicativo": "A sequência morfológica exata é: 'desistiram' (Verbo conjugado no pretérito perfeito) -> 'de' (Preposição) -> 'fazer' (Verbo no infinitivo)."}, {"id": 60, "tipo": "Resposta Curta", "pergunta": "Qual é o termo específico da sintaxe utilizado para identificar a função gramatical de um chamamento a alguém numa frase?", "resposta_correta": "Vocativo.", "dica": "Este termo consta na lista de elementos sintáticos do seu texto, lado a lado com o sujeito, predicado e aposto.", "feedback_explicativo": "A resposta correta é 'Vocativo'. Este elemento sintático serve para nomear ou chamar o interlocutor a quem nos dirigimos durante o discurso, fazendo parte do âmbito analítico da sintaxe."}];
+const CARDS = [{"q": "Qual é a parte da gramática que estuda a palavra isoladamente (em si)?", "a": "Morfologia."}, {"q": "Qual é a parte da gramática que estuda a palavra em relação às outras dentro de uma oração?", "a": "Sintaxe."}, {"q": "Como se denomina a análise que combina o estudo da classe gramatical com a função da palavra na oração?", "a": "Análise morfossintática."}, {"q": "A morfologia foca-se na _____ a que a palavra pertence.", "a": "classe gramatical"}, {"q": "A sintaxe foca-se no _____ que a palavra desempenha dentro de um contexto linguístico.", "a": "papel (ou função)"}, {"q": "Quantas são as classes gramaticais estudadas na morfologia?", "a": "Dez."}, {"q": "Na frase \"Maria comprou um carro\", qual é a classificação morfológica de \"Maria\"?", "a": "Substantivo próprio."}, {"q": "Na frase \"Maria comprou um carro\", qual é a função sintática de \"Maria\"?", "a": "Sujeito simples."}, {"q": "Na análise sintática de \"Maria comprou um carro\", o termo \"comprou\" é o _____ do predicado verbal.", "a": "núcleo"}, {"q": "Qual é a classe morfológica da palavra \"um\" no exemplo \"Maria comprou um carro\"?", "a": "Artigo."}, {"q": "Qual é a função sintática da palavra \"um\" no exemplo \"Maria comprou um carro\"?", "a": "Adjunto adnominal."}, {"q": "Na frase \"Maria comprou um carro\", a palavra \"carro\" é morfologicamente um _____.", "a": "substantivo comum"}, {"q": "Na frase \"Maria comprou um carro\", qual é a função sintática exata de \"carro\"?", "a": "Núcleo do objeto direto."}, {"q": "Na oração \"Acreditamos sempre em dias melhores\", qual é o sujeito?", "a": "Sujeito oculto (nós)."}, {"q": "Como se identifica o sujeito oculto na forma verbal \"Acreditamos\"?", "a": "Pela desinência de número e pessoa (-mos)."}, {"q": "Na frase \"Acreditamos sempre em dias melhores\", qual é a função sintática de \"sempre\"?", "a": "Adjunto adverbial de tempo."}, {"q": "Na frase \"Acreditamos sempre em dias melhores\", o termo \"em dias melhores\" funciona como _____.", "a": "objeto indireto"}, {"q": "Por que \"em dias melhores\" é um objeto indireto?", "a": "Porque complementa o sentido do verbo \"acreditar\" com preposição."}, {"q": "Qual é a função sintática de \"melhores\" na frase \"Acreditamos sempre em dias melhores\"?", "a": "Predicativo do objeto."}, {"q": "O predicativo do objeto tem a finalidade de conferir uma _____ ao objeto.", "a": "característica"}, {"q": "Cite quatro exemplos de elementos sintáticos mencionados no texto.", "a": "Sujeito, predicado, complemento nominal e vocativo."}, {"q": "Morfologicamente, a que classe pertence a palavra \"alguns\" em \"Alguns candidatos desistiram\"?", "a": "Pronome indefinido."}, {"q": "Na frase \"Alguns candidatos desistiram de fazer as provas\", qual a classe morfológica de \"candidatos\"?", "a": "Substantivo comum."}, {"q": "Análise morfológica de \"desistiram\": Verbo no pretérito perfeito do modo _____.", "a": "indicativo"}, {"q": "Qual é a classe gramatical da palavra \"de\"?", "a": "Preposição."}, {"q": "Na frase \"desistiram de fazer as provas\", em que forma nominal está o verbo \"fazer\"?", "a": "Infinitivo."}, {"q": "A que conjugação pertence o verbo \"fazer\"?", "a": "Segunda conjugação (-er)."}, {"q": "Morfologicamente, a palavra \"as\" em \"as provas\" é um _____.", "a": "artigo definido"}, {"q": "Na frase \"A manhã está ensolarada\", qual é a classificação morfológica de \"A\"?", "a": "Artigo."}, {"q": "Na frase \"A manhã está ensolarada\", qual é a classificação morfológica de \"manhã\"?", "a": "Substantivo."}, {"q": "Na frase \"A manhã está ensolarada\", qual é a classificação morfológica de \"está\"?", "a": "Verbo (estar)."}, {"q": "Na frase \"A manhã está ensolarada\", qual é a classificação morfológica de \"ensolarada\"?", "a": "Adjetivo."}, {"q": "Qual é o tipo de sujeito em \"A manhã está ensolarada\"?", "a": "Sujeito simples."}, {"q": "Por que o predicado em \"A manhã está ensolarada\" é classificado como nominal?", "a": "Porque o verbo denota estado (verbo de ligação)."}, {"q": "Qual é a função sintática de \"ensolarada\" na frase \"A manhã está ensolarada\"?", "a": "Predicativo do sujeito."}, {"q": "Na frase \"Marcos e Paulo gostam de estudar\", qual é a classificação morfológica de \"Marcos\"?", "a": "Substantivo próprio."}, {"q": "Na frase \"Marcos e Paulo gostam de estudar\", qual é a classificação morfológica de \"Paulo\"?", "a": "Substantivo próprio."}, {"q": "Qual é a classificação morfológica de \"gostam\"?", "a": "Verbo (gostar)."}, {"q": "Morfologicamente, \"todos\" é classificado como _____.", "a": "pronome indefinido"}, {"q": "Na frase \"Marcos e Paulo gostam de estudar\", qual é o tipo de sujeito?", "a": "Sujeito composto."}, {"q": "Por que o sujeito de \"Marcos e Paulo gostam de estudar\" é composto?", "a": "Porque possui dois núcleos (Marcos e Paulo)."}, {"q": "Na frase \"Marcos e Paulo gostam de estudar todos os dias\", qual é o predicado?", "a": "Predicado verbal (gostam de estudar todos os dias)."}, {"q": "Qual a função sintática de \"de estudar\" na frase de Marcos e Paulo?", "a": "Objeto indireto."}, {"q": "Qual a função sintática de \"todos os dias\" na frase de Marcos e Paulo?", "a": "Adjunto adverbial de tempo."}, {"q": "Complete: Na análise _____, os termos são analisados passo a passo; na análise _____, são analisados pela posição desempenhada.", "a": "morfológica / sintática"}, {"q": "O termo \"predicado\" pertence ao domínio da análise _____.", "a": "sintática"}, {"q": "O termo \"numeral\" pertence ao domínio da análise _____.", "a": "morfológica"}, {"q": "O termo \"agente da passiva\" é um elemento de natureza _____.", "a": "sintática"}, {"q": "O termo \"interjeição\" é uma das dez classes da _____.", "a": "morfologia"}, {"q": "A finalidade da análise _____ é o estudo das palavras de acordo com a função no contexto linguístico.", "a": "sintática"}, {"q": "Qual é a classe gramatical de \"provas\"?", "a": "Substantivo comum."}, {"q": "Na morfologia, palavras como \"sempre\" são classificadas como _____.", "a": "advérbios"}, {"q": "Na sintaxe, palavras que indicam circunstância de tempo chamam-se _____.", "a": "adjuntos adverbiais (de tempo)"}, {"q": "O termo \"aposto\" é um elemento da análise _____.", "a": "sintática"}, {"q": "O termo \"conjunção\" é um elemento da análise _____.", "a": "morfológica"}, {"q": "A frase \"Acreditamos sempre em dias melhores\" possui um predicado de que tipo?", "a": "Predicado verbal."}, {"q": "Na frase \"Maria comprou um carro\", qual é o objeto direto?", "a": "um carro"}, {"q": "Na frase \"Maria comprou um carro\", qual é o núcleo do predicado verbal?", "a": "comprou"}, {"q": "Qual classe gramatical foca na qualidade dos substantivos?", "a": "Adjetivo."}, {"q": "A análise que estuda substantivos, adjetivos e verbos chama-se _____.", "a": "análise morfológica"}, {"q": "A análise que identifica o objeto direto e o predicativo chama-se _____.", "a": "análise sintática"}, {"q": "O termo \"vocativo\" é estudado em qual parte da gramática?", "a": "Sintaxe."}, {"q": "O termo \"preposição\" é estudado em qual parte da gramática?", "a": "Morfologia."}, {"q": "Diferença fundamental: A morfologia olha para a palavra _____; a sintaxe olha para a palavra _____.", "a": "sozinha / em relação às outras"}, {"q": "Na frase \"A manhã está ensolarada\", o termo \"A manhã\" é o _____.", "a": "sujeito (simples)"}, {"q": "Na frase \"Marcos e Paulo gostam de estudar\", o que é \"gostam de estudar todos os dias\"?", "a": "Predicado verbal."}, {"q": "Morfologia de \"dias\": substantivo _____.", "a": "simples (ou comum)"}, {"q": "Sintaxe de \"em dias melhores\": objeto _____.", "a": "indireto"}, {"q": "O que a sintaxe busca identificar em meio a um contexto linguístico?", "a": "A função que as palavras desempenham."}, {"q": "Quantas partes principais da gramática são mencionadas na introdução do texto?", "a": "Fonética, morfologia e sintaxe."}, {"q": "Por que os alunos costumam confundir morfologia e sintaxe?", "a": "Porque acabam por misturar as duas análises."}, {"q": "Em \"Acreditamos sempre...\", o verbo está em que pessoa?", "a": "1ª pessoa do plural."}, {"q": "Definição de Complemento Verbal na sintaxe (exemplos):", "a": "Objeto direto e objeto indireto."}, {"q": "Qual é a classe morfológica de \"os\" em \"os dias\"?", "a": "Artigo definido."}, {"q": "A palavra \"melhores\" em \"dias melhores\" é morfologicamente um _____.", "a": "adjetivo"}, {"q": "O termo \"sujeito\" é uma categoria morfológica ou sintática?", "a": "Sintática."}, {"q": "O termo \"pronome\" é uma categoria morfológica ou sintática?", "a": "Morfológica."}, {"q": "Qual a classe morfológica de \"estudar\"?", "a": "Verbo."}, {"q": "Em \"A manhã está ensolarada\", qual o núcleo do sujeito?", "a": "manhã"}, {"q": "A frase \"Maria comprou um carro\" apresenta quantos núcleos no objeto direto?", "a": "Um (carro)."}, {"q": "A morfologia estuda as _____ gramaticais.", "a": "classes"}, {"q": "A sintaxe estuda as _____ gramaticais.", "a": "funções"}];
+const GLOSSARIO = [["Adjunto Adnominal", "Termo sintático que acompanha e modifica um substantivo, como artigos ou adjetivos."], ["Adjunto Adverbial", "Termo que indica uma circunstância (tempo, modo, lugar) em relação ao verbo."], ["Adjetivo", "Classe morfológica que atribui qualidades ou características aos substantivos."], ["Artigo", "Palavra que antecede o substantivo para o definir (o, a) ou indefinir (um, uma)."], ["Morfologia", "Parte da gramática que estuda a forma e a classe das palavras isoladamente."], ["Núcleo", "A palavra principal e essencial de um termo sintático (como do sujeito ou do objeto)."], ["Objeto Direto", "Complemento de um verbo que normalmente não exige preposição."], ["Objeto Indireto", "Complemento de um verbo que exige obrigatoriamente uma preposição."], ["Predicado", "Tudo o que se afirma ou se diz em relação ao sujeito na oração."], ["Predicativo", "Termo que confere uma característica ao sujeito (no predicado nominal) ou ao objeto."], ["Sintaxe", "Parte da gramática que estuda a função e a relação das palavras dentro de uma frase."], ["Substantivo", "Classe de palavras que nomeia seres, objetos, lugares e sentimentos."], ["Sujeito", "O termo da oração sobre o qual se faz uma declaração e com o qual o verbo concorda."], ["Verbo", "Classe de palavras que exprime ação, estado, mudança de estado ou fenómeno da natureza."]];
+
+const RESUMOS = [
+  {
+    titulo: "1. O Teatro da Língua: a identidade e o papel das palavras",
+    fonte: "Compreender a Identidade e o Papel das Palavras",
+    icon: "drama",
+    html: `<p>Imagina a língua portuguesa como um <strong>grande espetáculo de teatro</strong>. Cada palavra é um ator com duas dimensões: a sua <em>identidade civil</em> (quem é fora do palco) e o <em>papel</em> que interpreta na peça (herói, vilão, mensageiro…).</p>
+    <p class="mt-3">Na gramática acontece o mesmo: uma palavra <strong>«é»</strong> uma coisa (estudo da <span class="text-orange-600 font-semibold">Morfologia</span>) e <strong>«está a fazer»</strong> outra (estudo da <span class="text-blue-700 font-semibold">Sintaxe</span>).</p>
+    <h4 class="mt-4 mb-2">O bilhete de identidade (Morfologia)</h4>
+    <p>Todas as palavras pertencem a uma destas <strong>dez classes</strong>:</p>
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-2 text-sm">
+      <span class="badge pill-orange">Substantivo</span><span class="badge pill-orange">Artigo</span><span class="badge pill-orange">Adjetivo</span><span class="badge pill-orange">Numeral</span><span class="badge pill-orange">Pronome</span>
+      <span class="badge pill-orange">Verbo</span><span class="badge pill-orange">Advérbio</span><span class="badge pill-orange">Preposição</span><span class="badge pill-orange">Conjunção</span><span class="badge pill-orange">Interjeição</span>
+    </div>
+    <h4 class="mt-4 mb-2">O guia de cena (Sintaxe)</h4>
+    <p>Aqui o foco é o que a palavra <strong>faz</strong> em relação às outras: sujeito, predicado, objeto direto/indireto, complementos, adjuntos…</p>
+    <p class="mt-3 p-3 bg-cream rounded-lg" style="background:var(--cream)"><strong>Duas chaves de ouro:</strong><br>🎭 Morfologia → «O que és tu?» (classe gramatical)<br>🎬 Sintaxe → «Como te relacionas com os outros?» (função)</p>`
+  },
+  {
+    titulo: "2. Compêndio Elementar: o coração da gramática",
+    fonte: "Compêndio Elementar",
+    icon: "book-heart",
+    html: `<p>Quando estudas a gramática, é como teres um <strong>mapa</strong>. A divisão em fonética, morfologia e sintaxe ajuda-te a saber onde estás.</p>
+    <h4 class="mt-3 mb-2">Morfologia — a palavra sozinha</h4>
+    <p>Olha para a palavra individualmente. Pergunta: <em>«Que tipo de palavra és?»</em> A resposta será sempre uma das 10 classes gramaticais. É como o <strong>«bilhete de identidade»</strong> da palavra: não muda, esteja ela onde estiver.</p>
+    <h4 class="mt-3 mb-2">Sintaxe — a palavra em contexto</h4>
+    <p>Olha para o que a palavra <strong>faz</strong> dentro da frase: é o <em>«papel social»</em> ou a <em>«profissão»</em> que exerce naquele momento. Uma palavra que nasceu substantivo (morfologia) pode ser contratada para trabalhar como <strong>sujeito</strong> ou como <strong>objeto</strong> (sintaxe).</p>
+    <h4 class="mt-4 mb-2">Confronto prático: «Maria comprou um carro»</h4>
+    <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b-2"><th class="text-left py-2">Termo</th><th class="text-left text-orange-600">Morfologia</th><th class="text-left text-blue-700">Sintaxe</th></tr></thead><tbody>
+    <tr class="border-b"><td class="py-1 font-semibold">Maria</td><td>Substantivo próprio</td><td>Sujeito simples</td></tr>
+    <tr class="border-b"><td class="py-1 font-semibold">comprou</td><td>Verbo</td><td>Núcleo do predicado verbal</td></tr>
+    <tr class="border-b"><td class="py-1 font-semibold">um</td><td>Artigo</td><td>Adjunto adnominal</td></tr>
+    <tr><td class="py-1 font-semibold">carro</td><td>Substantivo comum</td><td>Núcleo do objeto direto</td></tr>
+    </tbody></table></div>
+    <p class="mt-3"><strong>Porquê?</strong> Maria <em>é</em> substantivo pela sua natureza (nomeia um ser). Maria <em>é</em> sujeito porque é ela que realiza a ação de comprar.</p>`
+  },
+  {
+    titulo: "3. Análise sintática e morfológica — exemplos práticos",
+    fonte: "Analise_sintatica_e_morfologica",
+    icon: "list-checks",
+    html: `<p>Muitos alunos misturam as duas análises. Para evitar confusão, faz <strong>sempre passo a passo</strong>:</p>
+    <h4 class="mt-3 mb-2">Exemplo 1: «A manhã está ensolarada»</h4>
+    <p class="text-orange-600 font-semibold">Morfologia:</p>
+    <ul class="list-disc ml-6 text-sm"><li><strong>A</strong> → artigo</li><li><strong>manhã</strong> → substantivo</li><li><strong>está</strong> → verbo (estar)</li><li><strong>ensolarada</strong> → adjetivo</li></ul>
+    <p class="text-blue-700 font-semibold mt-2">Sintaxe:</p>
+    <ul class="list-disc ml-6 text-sm"><li><strong>A manhã</strong> → sujeito simples</li><li><strong>está ensolarada</strong> → predicado nominal (o verbo «estar» é verbo de ligação)</li><li><strong>ensolarada</strong> → predicativo do sujeito</li></ul>
+    <h4 class="mt-4 mb-2">Exemplo 2: «Marcos e Paulo gostam de estudar todos os dias»</h4>
+    <p class="text-orange-600 font-semibold">Morfologia:</p>
+    <p class="text-sm">Marcos (subst. próprio) · e (conjunção) · Paulo (subst. próprio) · gostam (verbo) · de (preposição) · estudar (verbo no infinitivo) · todos (pronome indefinido) · os (artigo) · dias (substantivo).</p>
+    <p class="text-blue-700 font-semibold mt-2">Sintaxe:</p>
+    <ul class="list-disc ml-6 text-sm"><li><strong>Marcos e Paulo</strong> → sujeito composto (dois núcleos)</li><li><strong>gostam de estudar todos os dias</strong> → predicado verbal</li><li><strong>de estudar</strong> → objeto indireto</li><li><strong>todos os dias</strong> → adjunto adverbial de tempo</li></ul>
+    <p class="mt-3 p-3 rounded-lg" style="background:var(--sky)"><strong>Regra de ouro:</strong> na análise morfológica analisas palavra a palavra; na análise sintática analisas blocos pela <em>posição</em> e função.</p>`
+  },
+  {
+    titulo: "4. Diretrizes pedagógicas: estratégias para aprender",
+    fonte: "Diretrizes Pedagógicas",
+    icon: "graduation-cap",
+    html: `<p>A distinção entre morfologia e sintaxe pode ser ensinada e aprendida em <strong>três etapas claras</strong>:</p>
+    <ol class="list-decimal ml-6 mt-2 space-y-2">
+      <li><strong>Isolamento (Morfologia):</strong> identifica passo a passo a classe de cada palavra. Não saltes nenhuma.</li>
+      <li><strong>Relação (Sintaxe):</strong> agora pergunta — quem pratica a ação? Quem a sofre? O que modifica quê?</li>
+      <li><strong>Integração (Morfossintaxe):</strong> apresenta as duas análises em paralelo. A classe é a <em>base</em>, a função é o <em>papel</em>.</li>
+    </ol>
+    <h4 class="mt-4 mb-2">Porque é que confundimos?</h4>
+    <p>Porque é exigente processar <strong>dois planos ao mesmo tempo</strong>. Quando a pergunta é «qual é o sujeito?», a resposta tem de ser uma função (ex: <em>«A manhã»</em>) e nunca uma classe (ex: <em>«substantivo»</em>).</p>
+    <h4 class="mt-4 mb-2">Boas práticas</h4>
+    <ul class="list-disc ml-6 space-y-1">
+      <li>Usa <strong>tabelas de duas colunas</strong> (classe / função) para visualizar.</li>
+      <li>Não misturas nomes: morfológico responde a morfológico, sintático a sintático.</li>
+      <li>Lembra-te: a <em>classe</em> tende a ser estável; a <em>função</em> depende da posição na frase.</li>
+    </ul>`
+  },
+  {
+    titulo: "5. Interdependência morfossintática (nível avançado)",
+    fonte: "A Interdependência Morfossintática na Qualidade e Revisão de Textos Formais",
+    icon: "git-merge",
+    html: `<p>Para textos formais (relatórios, pareceres), dominar morfologia e sintaxe é uma <strong>competência crítica</strong>. A análise tem uma natureza <em>binária</em>:</p>
+    <ul class="list-disc ml-6 mt-2"><li><strong>Morfologia</strong> — estuda a palavra «em si»;</li><li><strong>Sintaxe</strong> — estuda a palavra «em relação».</li></ul>
+    <h4 class="mt-3 mb-2">Sinergia: identificação de núcleos</h4>
+    <p>Enquanto a morfologia <em>atomiza</em> os componentes (analisa um a um), a sintaxe <em>agrupa-os</em> em blocos funcionais com um <strong>núcleo</strong>. Exemplo:</p>
+    <ul class="list-disc ml-6 text-sm">
+      <li><strong>Morfologia (atomizada):</strong> [Marcos] + [e] + [Paulo] → dois substantivos e uma conjunção.</li>
+      <li><strong>Sintaxe (agrupada):</strong> [Marcos e Paulo] → um único <em>sujeito composto</em> com dois núcleos.</li>
+    </ul>
+    <h4 class="mt-4 mb-2">Restrição funcional</h4>
+    <p>Algumas classes têm funções <strong>estritamente relacionais</strong>: uma <em>preposição</em> nunca pode ser sujeito. Um <em>verbo</em> nunca é adjunto adnominal. Conhecer estas restrições evita os erros mais comuns em redações.</p>
+    <h4 class="mt-4 mb-2">Conclusão</h4>
+    <p>A qualidade de um texto formal depende da <strong>atenção meticulosa</strong> ao detalhe morfológico, sem nunca perder a <strong>visão sistémica</strong> da sintaxe. As duas dimensões coexistem em cada palavra que escreves.</p>`
+  }
+];
+
+// ============== STATE ==============
+const LS = { fc: 'gpms_fc_v1', quiz: 'gpms_quiz_v1' };
+let fcOrder = [...Array(CARDS.length).keys()];
+let fcCur = 0;
+let fcKnown = new Set();
+
+let slideCur = 1;
+const SLIDES_N = 13;
+
+let quizState = null; // {qs:[idx...], cur:0, answers:[], ok:0, err:0, skip:0}
+
+// ============== NAV ==============
+document.querySelectorAll('[data-go]').forEach(b=>{
+  b.addEventListener('click',()=>navigate(b.dataset.go));
+});
+function navigate(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(n=>n.classList.toggle('active', n.dataset.go===id));
+  document.querySelectorAll('.bn-btn[data-bn]').forEach(n=>n.classList.toggle('active', n.dataset.bn===id));
+  document.querySelectorAll('.more-item[data-bn]').forEach(n=>n.classList.toggle('active', n.dataset.bn===id));
+  // If selected section is in More sheet, highlight "Mais" instead
+  const inBottom = ['inicio','resumos','flashcards','quiz'].includes(id);
+  document.getElementById('bnMore').classList.toggle('active', !inBottom);
+  closeMore();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+// Bottom nav wiring
+document.querySelectorAll('.bn-btn[data-bn]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.bn)));
+document.querySelectorAll('.more-item[data-bn]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.bn)));
+document.getElementById('bnMore').addEventListener('click',()=>document.getElementById('moreSheet').classList.add('show'));
+document.getElementById('moreGuide').addEventListener('click',()=>{closeMore();document.getElementById('guideModal').classList.add('show');});
+function closeMore(e){
+  if(e && e.target.id!=='moreSheet') return;
+  document.getElementById('moreSheet').classList.remove('show');
+}
+
+// ============== MODAL ==============
+function openModal(src){
+  document.getElementById('modalImg').src = src;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal(e){
+  if(e && e.target.id!=='modalBg' && e.target.tagName!=='BUTTON' && !e.target.closest('button')) return;
+  document.getElementById('modalBg').classList.remove('show');
+}
+document.getElementById('userGuideBtn').onclick=()=>document.getElementById('guideModal').classList.add('show');
+function closeGuide(e){
+  if(e && e.target.id!=='guideModal' && !e.target.closest('button')) return;
+  document.getElementById('guideModal').classList.remove('show');
+}
+
+// ============== SLIDES ==============
+function currentSlideSrc(){return `./Diapositivo${slideCur}.jpg`;}
+function renderSlide(){
+  document.getElementById('slideImg').src = currentSlideSrc();
+  document.getElementById('slideImg').alt = `Slide ${slideCur}`;
+  document.getElementById('slideIdx').textContent = slideCur;
+  document.querySelectorAll('#slideThumbs .slide-thumb').forEach((t,i)=>t.classList.toggle('active', i+1===slideCur));
+}
+function buildThumbs(){
+  const w = document.getElementById('slideThumbs');
+  w.innerHTML='';
+  for(let i=1;i<=SLIDES_N;i++){
+    const d=document.createElement('div');
+    d.className='slide-thumb flex-shrink-0 w-20 h-14 bg-white flex items-center justify-center text-xs font-semibold text-gray-600';
+    d.textContent=i;
+    d.onclick=()=>{slideCur=i;renderSlide();};
+    w.appendChild(d);
+  }
+}
+document.getElementById('slidePrev').onclick=()=>{if(slideCur>1){slideCur--;renderSlide();}};
+document.getElementById('slideNext').onclick=()=>{if(slideCur<SLIDES_N){slideCur++;renderSlide();}};
+// swipe on mobile
+let touchX=null;
+document.getElementById('slideMain').addEventListener('touchstart',e=>touchX=e.touches[0].clientX);
+document.getElementById('slideMain').addEventListener('touchend',e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx)>40){
+    if(dx<0 && slideCur<SLIDES_N){slideCur++;renderSlide();}
+    else if(dx>0 && slideCur>1){slideCur--;renderSlide();}
+  }
+  touchX=null;
+});
+
+// ============== RESUMOS ==============
+function renderResumos(){
+  const w = document.getElementById('resumosWrap');
+  w.innerHTML = RESUMOS.map((r,i)=>`
+    <div class="card">
+      <div class="acc-head p-4 flex items-center justify-between gap-3" onclick="toggleAcc(${i})">
+        <div class="flex items-center gap-3"><i data-lucide="${r.icon}" class="w-5 h-5 text-orange-500 flex-shrink-0"></i>
+          <div><h3 class="text-base sm:text-lg">${r.titulo}</h3><p class="text-xs text-gray-500">Fonte: ${r.fonte}.pdf</p></div>
+        </div>
+        <i data-lucide="chevron-down" class="w-5 h-5 flex-shrink-0 chevron-${i} transition-transform"></i>
+      </div>
+      <div id="acc-body-${i}" class="acc-body"><div class="p-4 pt-0 border-t border-gray-100 text-gray-700 leading-relaxed">${r.html}</div></div>
+    </div>`).join('');
+  if(window.lucide)lucide.createIcons();
+}
+function toggleAcc(i){
+  const b = document.getElementById('acc-body-'+i);
+  b.classList.toggle('open');
+  const c = document.querySelector('.chevron-'+i);
+  if(c) c.style.transform = b.classList.contains('open')?'rotate(180deg)':'';
+}
+
+// ============== FLASHCARDS ==============
+function fcLoad(){
+  try{ const d = JSON.parse(localStorage.getItem(LS.fc)||'{}'); fcKnown = new Set(d.known||[]); }catch(e){}
+  document.getElementById('fcTot').textContent = CARDS.length;
+  document.getElementById('fcTot2').textContent = CARDS.length;
+  document.getElementById('statCards').textContent = CARDS.length;
+}
+function fcSave(){ localStorage.setItem(LS.fc, JSON.stringify({known:[...fcKnown]})); }
+function fcRender(){
+  const idx = fcOrder[fcCur];
+  const c = CARDS[idx];
+  document.getElementById('fcFront').textContent = c.q;
+  document.getElementById('fcBack').textContent = c.a;
+  document.getElementById('fcIdx').textContent = fcCur+1;
+  document.getElementById('fcKnown').textContent = fcKnown.size;
+  document.getElementById('fcProg').style.width = (fcKnown.size/CARDS.length*100)+'%';
+  document.getElementById('flashcard').classList.remove('flipped');
+}
+document.getElementById('fcNext').onclick=()=>{fcCur=(fcCur+1)%CARDS.length;fcRender();};
+document.getElementById('fcPrev').onclick=()=>{fcCur=(fcCur-1+CARDS.length)%CARDS.length;fcRender();};
+document.getElementById('fcKnow').onclick=()=>{fcKnown.add(fcOrder[fcCur]);fcSave();fcCur=(fcCur+1)%CARDS.length;fcRender();};
+document.getElementById('fcShuffle').onclick=()=>{fcOrder=fcOrder.sort(()=>Math.random()-0.5);fcCur=0;fcRender();};
+document.getElementById('fcReset').onclick=()=>{if(confirm('Reiniciar progresso dos flashcards?')){fcKnown=new Set();fcSave();fcCur=0;fcRender();}};
+
+// ============== GLOSSÁRIO ==============
+function renderGlos(filter=''){
+  const w = document.getElementById('glosWrap');
+  const f = filter.toLowerCase().trim();
+  w.innerHTML = GLOSSARIO.filter(([t,d])=>!f || t.toLowerCase().includes(f) || d.toLowerCase().includes(f))
+    .map(([t,d])=>`<div class="card p-4"><h4 class="text-base mb-1 text-orange-600">${t}</h4><p class="text-sm text-gray-700">${d}</p></div>`).join('')
+    || '<p class="text-gray-500 col-span-2 text-center py-6">Sem resultados.</p>';
+}
+document.getElementById('glosSearch').oninput=e=>renderGlos(e.target.value);
+
+// ============== QUIZ ==============
+function quizLoad(){
+  try{ quizState = JSON.parse(localStorage.getItem(LS.quiz)||'null'); }catch(e){quizState=null;}
+  if(quizState && !quizState.done) document.getElementById('quizResumePanel').classList.remove('hidden');
+}
+function quizSave(){ if(quizState) localStorage.setItem(LS.quiz, JSON.stringify(quizState)); }
+function quizStart(){
+  const idx = [...Array(QUESTOES.length).keys()].sort(()=>Math.random()-0.5).slice(0,30);
+  quizState = {qs:idx, cur:0, answers:Array(30).fill(null), ok:0, err:0, skip:0, done:false};
+  quizSave();
+  document.getElementById('quizIntro').classList.add('hidden');
+  document.getElementById('quizResults').classList.add('hidden');
+  document.getElementById('quizPlay').classList.remove('hidden');
+  renderQ();
+}
+function quizResume(){
+  document.getElementById('quizIntro').classList.add('hidden');
+  document.getElementById('quizPlay').classList.remove('hidden');
+  renderQ();
+}
+document.getElementById('btnStartQuiz').onclick=quizStart;
+document.getElementById('btnResume').onclick=quizResume;
+
+function renderQ(){
+  const q = QUESTOES[quizState.qs[quizState.cur]];
+  document.getElementById('qIdx').textContent = quizState.cur+1;
+  document.getElementById('qOK').textContent = quizState.ok;
+  document.getElementById('qERR').textContent = quizState.err;
+  document.getElementById('qSKIP').textContent = quizState.skip;
+  document.getElementById('qProg').style.width = ((quizState.cur)/30*100)+'%';
+  document.getElementById('qSubmit').classList.remove('hidden');
+  document.getElementById('qNext').classList.add('hidden');
+  document.getElementById('qSkip').classList.remove('hidden');
+  const body = document.getElementById('qBody');
+  let html = `<div class="mb-3"><span class="badge pill-blue">${q.tipo}</span></div>
+    <h3 class="text-lg mb-4">${q.pergunta}</h3>`;
+  if(q.tipo==='Escolha Múltipla' || q.tipo==='Verdadeiro / Falso'){
+    html += `<div class="space-y-2" id="optsWrap">${q.opcoes.map((o,i)=>`<label class="opt" data-val="${escapeAttr(o)}"><input type="radio" name="qopt" value="${escapeAttr(o)}" class="mt-1"><span>${o}</span></label>`).join('')}</div>`;
+  } else if(q.tipo==='Caixas de Verificação'){
+    html += `<div class="space-y-2" id="optsWrap">${q.opcoes.map((o,i)=>`<label class="opt" data-val="${escapeAttr(o)}"><input type="checkbox" value="${escapeAttr(o)}" class="mt-1"><span>${o}</span></label>`).join('')}</div>`;
+  } else if(q.tipo==='Correspondência'){
+    const keys = Object.keys(q.opcoes_de_correspondencia);
+    html += `<div id="optsWrap">${keys.map(k=>`
+      <div class="corr-row"><strong class="text-orange-600">${k})</strong><span class="flex-1 text-sm">${q.opcoes_de_correspondencia[k]}</span>
+      <select data-k="${k}"><option value="">—</option><option value="Correto">Correto</option><option value="Incorreto">Incorreto</option></select></div>`).join('')}</div>`;
+  } else if(q.tipo==='Ordenação'){
+    const items = [...q.itens_para_ordenar].sort(()=>Math.random()-0.5);
+    html += `<p class="text-sm text-gray-600 mb-2">Arrasta os itens para a ordem correta (ou usa as setas):</p>
+    <div id="optsWrap">${items.map((it,i)=>`
+      <div class="order-item" draggable="true" data-val="${escapeAttr(it)}">
+        <i data-lucide="grip-vertical" class="w-4 h-4 text-gray-400"></i>
+        <span class="flex-1">${it}</span>
+        <button onclick="orderMove(this,-1)" class="text-gray-500 hover:text-orange-600"><i data-lucide="arrow-up" class="w-4 h-4"></i></button>
+        <button onclick="orderMove(this,1)" class="text-gray-500 hover:text-orange-600"><i data-lucide="arrow-down" class="w-4 h-4"></i></button>
+      </div>`).join('')}</div>`;
+  } else if(q.tipo==='Resposta Curta'){
+    html += `<input type="text" id="qShort" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500" placeholder="Escreve a tua resposta...">`;
+  }
+  html += `<div id="qFeedback" class="hidden mt-4"></div>`;
+  body.innerHTML = html;
+  if(window.lucide)lucide.createIcons();
+  // option click
+  body.querySelectorAll('.opt').forEach(o=>{
+    o.onclick = (e)=>{
+      if(e.target.tagName!=='INPUT'){ const inp=o.querySelector('input'); if(inp){inp.checked=inp.type==='checkbox'?!inp.checked:true;} }
+      if(o.querySelector('input').type==='radio'){body.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));o.classList.add('selected');}
+      else { o.classList.toggle('selected', o.querySelector('input').checked); }
+    };
+  });
+  // drag for order
+  setupDrag();
+}
+
+function orderMove(btn, dir){
+  const item = btn.closest('.order-item');
+  const parent = item.parentNode;
+  if(dir<0 && item.previousElementSibling) parent.insertBefore(item, item.previousElementSibling);
+  if(dir>0 && item.nextElementSibling) parent.insertBefore(item.nextElementSibling, item);
+}
+function setupDrag(){
+  let dragEl=null;
+  document.querySelectorAll('.order-item').forEach(it=>{
+    it.addEventListener('dragstart',e=>{dragEl=it;it.classList.add('dragging');});
+    it.addEventListener('dragend',()=>{it.classList.remove('dragging');dragEl=null;});
+    it.addEventListener('dragover',e=>{
+      e.preventDefault();
+      if(!dragEl||dragEl===it) return;
+      const r = it.getBoundingClientRect();
+      const after = (e.clientY-r.top) > r.height/2;
+      it.parentNode.insertBefore(dragEl, after?it.nextSibling:it);
+    });
+  });
+}
+function escapeAttr(s){return String(s).replace(/"/g,'&quot;');}
+
+document.getElementById('qHint').onclick=()=>{
+  const q = QUESTOES[quizState.qs[quizState.cur]];
+  alert('💡 Dica: '+q.dica);
+};
+document.getElementById('qSkip').onclick=()=>{
+  quizState.answers[quizState.cur]={skip:true};
+  quizState.skip++;
+  quizSave();
+  advance();
+};
+document.getElementById('qNext').onclick=advance;
+document.getElementById('qSubmit').onclick=validate;
+
+function getAnswer(){
+  const q = QUESTOES[quizState.qs[quizState.cur]];
+  if(q.tipo==='Escolha Múltipla' || q.tipo==='Verdadeiro / Falso'){
+    const r = document.querySelector('input[name="qopt"]:checked');
+    return r ? r.value : null;
+  }
+  if(q.tipo==='Caixas de Verificação'){
+    return [...document.querySelectorAll('#optsWrap input:checked')].map(i=>i.value);
+  }
+  if(q.tipo==='Correspondência'){
+    const obj={};
+    document.querySelectorAll('#optsWrap select').forEach(s=>{obj[s.dataset.k]=s.value;});
+    return obj;
+  }
+  if(q.tipo==='Ordenação'){
+    return [...document.querySelectorAll('.order-item')].map((it,i)=>`${i+1}º: ${it.dataset.val}`);
+  }
+  if(q.tipo==='Resposta Curta'){
+    return document.getElementById('qShort').value.trim();
+  }
+}
+
+function isCorrect(q, ans){
+  if(ans===null || ans==='' || (Array.isArray(ans)&&ans.length===0)) return false;
+  if(q.tipo==='Escolha Múltipla' || q.tipo==='Verdadeiro / Falso') return ans===q.resposta_correta;
+  if(q.tipo==='Caixas de Verificação'){
+    const a=[...ans].sort(), b=[...q.resposta_correta].sort();
+    return a.length===b.length && a.every((v,i)=>v===b[i]);
+  }
+  if(q.tipo==='Correspondência'){
+    const keys=Object.keys(q.resposta_correta);
+    return keys.every(k=>ans[k]===q.resposta_correta[k]);
+  }
+  if(q.tipo==='Ordenação'){
+    return ans.length===q.resposta_correta.length && ans.every((v,i)=>v===q.resposta_correta[i]);
+  }
+  if(q.tipo==='Resposta Curta'){
+    const norm = s => s.toLowerCase().replace(/[.,;:!?()]/g,'').replace(/\s+/g,' ').trim();
+    const a = norm(ans), c = norm(q.resposta_correta);
+    return a===c || a.includes(c) || c.includes(a);
+  }
+  return false;
+}
+
+function validate(){
+  const q = QUESTOES[quizState.qs[quizState.cur]];
+  const ans = getAnswer();
+  if(ans===null || ans==='' || (Array.isArray(ans)&&ans.length===0 && q.tipo!=='Ordenação')){
+    alert('Por favor, responde antes de validar (ou usa «Ignorar»).');return;
+  }
+  const correct = isCorrect(q, ans);
+  quizState.answers[quizState.cur]={ans, correct};
+  if(correct) quizState.ok++; else quizState.err++;
+  quizSave();
+  // mark options visually
+  const body = document.getElementById('qBody');
+  if(q.tipo==='Escolha Múltipla' || q.tipo==='Verdadeiro / Falso'){
+    body.querySelectorAll('.opt').forEach(o=>{
+      const v = o.dataset.val;
+      if(v===q.resposta_correta) o.classList.add('correct');
+      else if(v===ans) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+    });
+  } else if(q.tipo==='Caixas de Verificação'){
+    body.querySelectorAll('.opt').forEach(o=>{
+      const v = o.dataset.val;
+      const isAns = ans.includes(v), isC = q.resposta_correta.includes(v);
+      if(isC) o.classList.add('correct');
+      else if(isAns) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+    });
+  }
+  // feedback
+  const fb = document.getElementById('qFeedback');
+  fb.classList.remove('hidden');
+  const cls = correct ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50';
+  const ico = correct ? '<i data-lucide="check-circle-2" class="w-5 h-5 text-green-600"></i>' : '<i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>';
+  const lab = correct ? '<span class="text-green-700 font-bold">Correto!</span>' : '<span class="text-red-700 font-bold">Não foi desta…</span>';
+  let extra='';
+  if(!correct){
+    let respText = q.resposta_correta;
+    if(typeof respText === 'object') respText = JSON.stringify(respText);
+    if(Array.isArray(q.resposta_correta)) respText = q.resposta_correta.join(' · ');
+    extra = `<p class="mt-2 text-sm"><strong>Resposta correta:</strong> ${respText}</p>`;
+  }
+  fb.innerHTML = `<div class="border-2 ${cls} rounded-lg p-4">
+    <div class="flex items-center gap-2 mb-2">${ico}${lab}</div>
+    ${extra}
+    <p class="mt-2 text-sm text-gray-700"><strong>Explicação:</strong> ${q.feedback_explicativo}</p>
+  </div>`;
+  if(window.lucide)lucide.createIcons();
+  document.getElementById('qSubmit').classList.add('hidden');
+  document.getElementById('qSkip').classList.add('hidden');
+  document.getElementById('qNext').classList.remove('hidden');
+}
+
+function advance(){
+  quizState.cur++;
+  if(quizState.cur>=30){ quizFinish(); return; }
+  quizSave();
+  renderQ();
+}
+
+function quizFinish(){
+  quizState.done = true;
+  quizSave();
+  document.getElementById('quizPlay').classList.add('hidden');
+  const res = document.getElementById('quizResults');
+  res.classList.remove('hidden');
+  const total = 30;
+  const pct = Math.round(quizState.ok/total*100);
+  let medal='🥉', msg='Continua a estudar! Revê os resumos e tenta de novo.';
+  if(pct>=85){medal='🏆';msg='Excelente! Domínio muito sólido da matéria.';}
+  else if(pct>=70){medal='🥇';msg='Muito bem! Estás quase no topo.';}
+  else if(pct>=50){medal='🥈';msg='Bom trabalho! Revê as questões falhadas.';}
+  res.innerHTML = `<div class="card p-6 text-center mb-4">
+    <div class="text-6xl mb-2">${medal}</div>
+    <h3 class="text-2xl mb-1">Quiz concluído!</h3>
+    <p class="text-gray-600 mb-4">${msg}</p>
+    <div class="text-5xl font-bold text-orange-600 mb-1">${pct}%</div>
+    <p class="text-sm text-gray-500 mb-4">${quizState.ok} corretas em ${total}</p>
+    <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mb-4">
+      <div class="stat"><div class="stat-num text-green-600">${quizState.ok}</div><div class="stat-lbl">Corretas</div></div>
+      <div class="stat"><div class="stat-num text-red-600">${quizState.err}</div><div class="stat-lbl">Erradas</div></div>
+      <div class="stat"><div class="stat-num text-gray-500">${quizState.skip}</div><div class="stat-lbl">Ignoradas</div></div>
+    </div>
+    <div class="flex justify-center gap-2 flex-wrap">
+      <button class="btn btn-primary" onclick="quizStart()"><i data-lucide="rotate-cw" class="w-4 h-4"></i>Responder novamente</button>
+      <button class="btn btn-blue" onclick="reviewQuiz()"><i data-lucide="eye" class="w-4 h-4"></i>Rever respostas</button>
+    </div>
+  </div>
+  <div id="reviewWrap"></div>`;
+  if(window.lucide)lucide.createIcons();
+}
+
+function reviewQuiz(){
+  const w = document.getElementById('reviewWrap');
+  w.innerHTML = '<h3 class="text-xl mb-3">Revisão completa</h3>' + quizState.qs.map((qi,i)=>{
+    const q = QUESTOES[qi];
+    const a = quizState.answers[i];
+    let status, color, txt;
+    if(!a || a.skip){status='Ignorada';color='gray';txt='—';}
+    else if(a.correct){status='Correta';color='green';txt=fmtAns(a.ans);}
+    else{status='Errada';color='red';txt=fmtAns(a.ans);}
+    let respC = q.resposta_correta;
+    if(Array.isArray(respC)) respC = respC.join(' · ');
+    else if(typeof respC==='object') respC = Object.entries(respC).map(([k,v])=>`${k}: ${v}`).join(' · ');
+    return `<div class="card p-4 mb-3">
+      <div class="flex items-start justify-between gap-2 mb-2 flex-wrap">
+        <span class="badge pill-blue">Q${i+1} · ${q.tipo}</span>
+        <span class="badge" style="background:${color==='green'?'#D1FAE5':color==='red'?'#FEE2E2':'#E5E7EB'};color:${color==='green'?'#065F46':color==='red'?'#991B1B':'#374151'}">${status}</span>
+      </div>
+      <p class="font-semibold mb-2">${q.pergunta}</p>
+      <p class="text-sm mb-1"><strong>Tua resposta:</strong> ${txt}</p>
+      <p class="text-sm mb-2"><strong>Resposta correta:</strong> ${respC}</p>
+      <p class="text-sm text-gray-600 italic">${q.feedback_explicativo}</p>
+    </div>`;
+  }).join('');
+  w.scrollIntoView({behavior:'smooth'});
+}
+function fmtAns(a){
+  if(a===null || a===undefined) return '—';
+  if(Array.isArray(a)) return a.join(' · ');
+  if(typeof a==='object') return Object.entries(a).map(([k,v])=>`${k}: ${v||'—'}`).join(' · ');
+  return String(a);
+}
+
+// ============== INIT ==============
+fcLoad();
+fcRender();
+buildThumbs();
+renderSlide();
+renderResumos();
+renderGlos();
+quizLoad();
+
+// ============== LABORATÓRIO LEGO ==============
+const MORF_OPTS = [
+  'Substantivo próprio','Substantivo comum','Substantivo simples',
+  'Artigo','Artigo definido',
+  'Adjetivo',
+  'Verbo','Verbo no infinitivo',
+  'Pronome indefinido','Pronome pessoal',
+  'Advérbio','Preposição','Conjunção','Numeral','Interjeição'
+];
+const SINT_OPTS = [
+  'Sujeito simples','Sujeito composto','Sujeito oculto','Núcleo do sujeito',
+  'Núcleo do predicado verbal','Predicado nominal','Elemento do predicado nominal',
+  'Núcleo do objeto direto','Núcleo do objeto indireto','Elemento do objeto indireto',
+  'Adjunto adnominal','Adjunto adverbial de tempo',
+  'Predicativo do sujeito','Predicativo do objeto',
+  'Conectivo (ligação de núcleos)'
+];
+
+const SENTENCES = [
+  {
+    id:'s1', nivel:'Básico', frase:'Maria comprou um carro.',
+    dica:'4 palavras. Quem é que pratica a ação de "comprar"? E o que é comprado?',
+    palavras:[
+      {p:'Maria', morf:'Substantivo próprio', sint:'Sujeito simples'},
+      {p:'comprou', morf:'Verbo', sint:'Núcleo do predicado verbal'},
+      {p:'um', morf:'Artigo', sint:'Adjunto adnominal'},
+      {p:'carro', morf:'Substantivo comum', sint:'Núcleo do objeto direto'},
+    ]
+  },
+  {
+    id:'s2', nivel:'Básico', frase:'A manhã está ensolarada.',
+    dica:'O verbo "estar" indica estado: é verbo de ligação. O que vem depois caracteriza o sujeito.',
+    palavras:[
+      {p:'A', morf:'Artigo', sint:'Adjunto adnominal'},
+      {p:'manhã', morf:'Substantivo comum', sint:'Núcleo do sujeito'},
+      {p:'está', morf:'Verbo', sint:'Elemento do predicado nominal'},
+      {p:'ensolarada', morf:'Adjetivo', sint:'Predicativo do sujeito'},
+    ]
+  },
+  {
+    id:'s3', nivel:'Intermédio', frase:'Marcos e Paulo gostam de estudar todos os dias.',
+    dica:'Dois sujeitos = sujeito composto. "Todos os dias" indica o quando da ação.',
+    palavras:[
+      {p:'Marcos', morf:'Substantivo próprio', sint:'Núcleo do sujeito'},
+      {p:'e', morf:'Conjunção', sint:'Conectivo (ligação de núcleos)'},
+      {p:'Paulo', morf:'Substantivo próprio', sint:'Núcleo do sujeito'},
+      {p:'gostam', morf:'Verbo', sint:'Núcleo do predicado verbal'},
+      {p:'de', morf:'Preposição', sint:'Elemento do objeto indireto'},
+      {p:'estudar', morf:'Verbo no infinitivo', sint:'Núcleo do objeto indireto'},
+      {p:'todos', morf:'Pronome indefinido', sint:'Adjunto adnominal'},
+      {p:'os', morf:'Artigo definido', sint:'Adjunto adnominal'},
+      {p:'dias', morf:'Substantivo comum', sint:'Adjunto adverbial de tempo'},
+    ]
+  },
+  {
+    id:'s4', nivel:'Intermédio', frase:'Alguns candidatos desistiram de fazer as provas.',
+    dica:'"Alguns" quantifica de forma vaga: é pronome indefinido. O verbo "desistir" pede preposição "de".',
+    palavras:[
+      {p:'Alguns', morf:'Pronome indefinido', sint:'Adjunto adnominal'},
+      {p:'candidatos', morf:'Substantivo comum', sint:'Núcleo do sujeito'},
+      {p:'desistiram', morf:'Verbo', sint:'Núcleo do predicado verbal'},
+      {p:'de', morf:'Preposição', sint:'Elemento do objeto indireto'},
+      {p:'fazer', morf:'Verbo no infinitivo', sint:'Núcleo do objeto indireto'},
+      {p:'as', morf:'Artigo definido', sint:'Adjunto adnominal'},
+      {p:'provas', morf:'Substantivo comum', sint:'Núcleo do objeto indireto'},
+    ]
+  },
+  {
+    id:'s5', nivel:'Avançado', frase:'Acreditamos sempre em dias melhores.',
+    dica:'Não vês o sujeito? A terminação "-amos" revela: é sujeito oculto (nós). "Melhores" dá uma característica a "dias".',
+    palavras:[
+      {p:'Acreditamos', morf:'Verbo', sint:'Núcleo do predicado verbal'},
+      {p:'sempre', morf:'Advérbio', sint:'Adjunto adverbial de tempo'},
+      {p:'em', morf:'Preposição', sint:'Elemento do objeto indireto'},
+      {p:'dias', morf:'Substantivo comum', sint:'Núcleo do objeto indireto'},
+      {p:'melhores', morf:'Adjetivo', sint:'Predicativo do objeto'},
+    ]
+  },
+];
+
+let labCur = null;     // current sentence id
+let labState = {};     // { sentenceId: { 0:{morf,sint}, 1:{...} } }
+let pickerCtx = null;  // { wordIdx, dim }
+
+function labLoadProgress(){
+  try{ labState = JSON.parse(localStorage.getItem('gpms_lab_v1')||'{}'); }catch(e){labState={};}
+}
+function labSaveProgress(){ localStorage.setItem('gpms_lab_v1', JSON.stringify(labState)); }
+
+function renderLabMenu(){
+  const w = document.getElementById('labSentences');
+  w.innerHTML = SENTENCES.map(s=>{
+    const st = labState[s.id];
+    let pct = 0, done = false;
+    if(st && st._done){ pct = st._score; done = true; }
+    const badgeColor = s.nivel==='Básico'?'background:#FFF1E2;color:var(--orange-dark)':
+                       s.nivel==='Intermédio'?'background:#E4F0F7;color:var(--blue-dark)':
+                       'background:#2C5F87;color:#fff';
+    return `<div class="card lab-card p-4 ${done?'done':''}" onclick="startLab('${s.id}')">
+      <div class="flex items-center justify-between mb-2 gap-2">
+        <span class="badge" style="${badgeColor}">${s.nivel}</span>
+        ${done?`<span class="badge" style="background:#D1FAE5;color:#065F46">✓ ${pct}%</span>`:`<i data-lucide="arrow-right" class="w-4 h-4 text-gray-400"></i>`}
+      </div>
+      <p class="lab-frase">"${s.frase}"</p>
+      <p class="text-xs text-gray-500 mt-2">${s.palavras.length} palavras · ${s.palavras.length*2} encaixes</p>
+    </div>`;
+  }).join('');
+  if(window.lucide)lucide.createIcons();
+}
+
+function startLab(id){
+  labCur = id;
+  const s = SENTENCES.find(x=>x.id===id);
+  document.getElementById('labMenu').classList.add('hidden');
+  document.getElementById('labPlay').classList.remove('hidden');
+  document.getElementById('labFrase').textContent = '"'+s.frase+'"';
+  const lvlEl = document.getElementById('labLevel');
+  lvlEl.textContent = s.nivel + ' · ' + s.palavras.length + ' palavras';
+  document.getElementById('labFeedback').classList.add('hidden');
+  document.getElementById('labValidate').classList.remove('hidden');
+  if(!labState[id] || labState[id]._done) labState[id] = {};
+  renderBricks();
+}
+
+function renderBricks(){
+  const s = SENTENCES.find(x=>x.id===labCur);
+  const st = labState[labCur] || {};
+  const w = document.getElementById('labBricks');
+  w.innerHTML = s.palavras.map((pw,i)=>{
+    const col = ((i%9)+1);
+    const m = st[i]?.morf, sn = st[i]?.sint;
+    return `<div class="lab-brick" style="animation-delay:${i*40}ms">
+      <div class="brick-word bc-${col}">${pw.p}</div>
+      <div class="brick-slots">
+        <button class="brick-slot morph ${m?'filled':''}" onclick="openPicker(${i},'morf')">
+          <span class="lbl-mini">Classe</span>
+          <span>${m||'+ escolher'}</span>
+        </button>
+        <button class="brick-slot synt ${sn?'filled':''}" onclick="openPicker(${i},'sint')">
+          <span class="lbl-mini">Função</span>
+          <span>${sn||'+ escolher'}</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openPicker(wordIdx, dim){
+  pickerCtx = {wordIdx, dim};
+  const s = SENTENCES.find(x=>x.id===labCur);
+  const pw = s.palavras[wordIdx];
+  const cur = labState[labCur]?.[wordIdx]?.[dim];
+  const opts = dim==='morf' ? MORF_OPTS : SINT_OPTS;
+  document.getElementById('pickerTitle').textContent = dim==='morf' ? '🟧 Classe morfológica' : '🟦 Função sintática';
+  document.getElementById('pickerWord').textContent = 'Palavra: "' + pw.p + '"';
+  const grid = document.getElementById('pickerOptions');
+  const cls = dim==='morf'?'morph-pool':'';
+  grid.innerHTML = opts.map(o=>`<button class="picker-opt ${cls} ${o===cur?'selected':''}" onclick="pickOpt('${o.replace(/'/g,"\\'")}')">${o}</button>`).join('');
+  document.getElementById('pickerSheet').classList.add('show');
+}
+function closePicker(e){
+  if(e && e.target.id!=='pickerSheet') return;
+  document.getElementById('pickerSheet').classList.remove('show');
+}
+function pickOpt(val){
+  if(!pickerCtx) return;
+  if(!labState[labCur]) labState[labCur] = {};
+  if(!labState[labCur][pickerCtx.wordIdx]) labState[labCur][pickerCtx.wordIdx] = {};
+  labState[labCur][pickerCtx.wordIdx][pickerCtx.dim] = val;
+  labSaveProgress();
+  closePicker();
+  renderBricks();
+}
+document.getElementById('pickerClear').onclick=()=>{
+  if(!pickerCtx) return;
+  if(labState[labCur]?.[pickerCtx.wordIdx]) delete labState[labCur][pickerCtx.wordIdx][pickerCtx.dim];
+  labSaveProgress();
+  closePicker();
+  renderBricks();
+};
+
+document.getElementById('labBack').onclick=()=>{
+  document.getElementById('labPlay').classList.add('hidden');
+  document.getElementById('labMenu').classList.remove('hidden');
+  renderLabMenu();
+};
+document.getElementById('labReset').onclick=()=>{
+  if(!confirm('Limpar as escolhas desta frase?')) return;
+  labState[labCur] = {};
+  labSaveProgress();
+  document.getElementById('labFeedback').classList.add('hidden');
+  document.getElementById('labValidate').classList.remove('hidden');
+  renderBricks();
+};
+document.getElementById('labHint').onclick=()=>{
+  const s = SENTENCES.find(x=>x.id===labCur);
+  alert('💡 Dica: '+s.dica);
+};
+
+document.getElementById('labValidate').onclick=()=>{
+  const s = SENTENCES.find(x=>x.id===labCur);
+  const st = labState[labCur] || {};
+  let ok = 0, total = s.palavras.length * 2;
+  let missing = 0;
+  s.palavras.forEach((pw,i)=>{
+    if(!st[i]?.morf) missing++;
+    if(!st[i]?.sint) missing++;
+  });
+  if(missing>0){
+    if(!confirm(`Faltam ${missing} encaixe(s). Validar mesmo assim?`)) return;
+  }
+  // Render bricks with correct/wrong styling
+  const w = document.getElementById('labBricks');
+  w.innerHTML = s.palavras.map((pw,i)=>{
+    const col = ((i%9)+1);
+    const m = st[i]?.morf, sn = st[i]?.sint;
+    const mClass = !m ? 'skipped' : (m===pw.morf?'correct':'wrong');
+    const sClass = !sn ? 'skipped' : (sn===pw.sint?'correct':'wrong');
+    if(m===pw.morf) ok++;
+    if(sn===pw.sint) ok++;
+    return `<div class="lab-brick">
+      <div class="brick-word bc-${col}">${pw.p}</div>
+      <div class="brick-slots">
+        <button class="brick-slot morph filled ${mClass}" onclick="openPicker(${i},'morf')">
+          <span class="lbl-mini">Classe</span>
+          <span>${m||'(vazio)'}</span>
+          ${m && m!==pw.morf ? `<span class="lbl-mini" style="opacity:1">✓ ${pw.morf}</span>` : ''}
+          ${!m ? `<span class="lbl-mini" style="opacity:1">✓ ${pw.morf}</span>` : ''}
+        </button>
+        <button class="brick-slot synt filled ${sClass}" onclick="openPicker(${i},'sint')">
+          <span class="lbl-mini">Função</span>
+          <span>${sn||'(vazio)'}</span>
+          ${sn && sn!==pw.sint ? `<span class="lbl-mini" style="opacity:1">✓ ${pw.sint}</span>` : ''}
+          ${!sn ? `<span class="lbl-mini" style="opacity:1">✓ ${pw.sint}</span>` : ''}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+  const pct = Math.round(ok/total*100);
+  let medal='💪', msg='Continua a tentar! Revê os resumos.';
+  if(pct===100){medal='🏆';msg='Perfeito! Análise impecável.';}
+  else if(pct>=80){medal='🥇';msg='Muito bem! Quase no topo.';}
+  else if(pct>=60){medal='🥈';msg='Bom! Vê os encaixes vermelhos.';}
+  else if(pct>=40){medal='🥉';msg='Razoável. Os encaixes a verde mostram o que acertaste.';}
+  const fb = document.getElementById('labFeedback');
+  fb.classList.remove('hidden');
+  const correctionBtn = pct<100 ? `<button class="btn btn-primary" onclick="showCorrection()"><i data-lucide="book-check" class="w-4 h-4"></i>Ver correção</button>` : '';
+  fb.innerHTML = `<div class="card p-5 text-center">
+    <div class="text-5xl mb-1">${medal}</div>
+    <div class="text-3xl font-bold text-orange-600">${pct}%</div>
+    <p class="text-sm text-gray-600 mb-2">${ok} acertos em ${total} encaixes</p>
+    <p class="text-sm">${msg}</p>
+    <div class="flex justify-center gap-2 mt-3 flex-wrap">
+      ${correctionBtn}
+      <button class="btn btn-blue" onclick="document.getElementById('labReset').click()"><i data-lucide="rotate-cw" class="w-4 h-4"></i>Tentar outra vez</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('labBack').click()"><i data-lucide="list" class="w-4 h-4"></i>Outra frase</button>
+    </div>
+  </div>`;
+  st._done = true;
+  st._score = pct;
+  labSaveProgress();
+  document.getElementById('labValidate').classList.add('hidden');
+  if(window.lucide)lucide.createIcons();
+  fb.scrollIntoView({behavior:'smooth', block:'center'});
+};
+
+// Show the full correct solution (called after validation when student fails)
+function showCorrection(){
+  const s = SENTENCES.find(x=>x.id===labCur);
+  const st = labState[labCur] || {};
+  const w = document.getElementById('labBricks');
+  // Render all bricks with correct answers, marking which ones user got right (✓) vs wrong/missed (★)
+  w.innerHTML = s.palavras.map((pw,i)=>{
+    const col = ((i%9)+1);
+    const userM = st[i]?.morf, userS = st[i]?.sint;
+    const mOK = userM===pw.morf, sOK = userS===pw.sint;
+    const mIcon = mOK ? '<span style="color:#fff;font-size:.85rem">✓ acertaste</span>' : (userM ? `<span style="color:#FEE;font-size:.7rem">tu: ${userM}</span>` : '<span style="color:#FEE;font-size:.7rem">tu: (vazio)</span>');
+    const sIcon = sOK ? '<span style="color:#fff;font-size:.85rem">✓ acertaste</span>' : (userS ? `<span style="color:#FEE;font-size:.7rem">tu: ${userS}</span>` : '<span style="color:#FEE;font-size:.7rem">tu: (vazio)</span>');
+    return `<div class="lab-brick">
+      <div class="brick-word bc-${col}">${pw.p}</div>
+      <div class="brick-slots">
+        <div class="brick-slot morph filled correct" style="cursor:default">
+          <span class="lbl-mini">Classe correta</span>
+          <span>${pw.morf}</span>
+          ${mIcon}
+        </div>
+        <div class="brick-slot synt filled correct" style="cursor:default">
+          <span class="lbl-mini">Função correta</span>
+          <span>${pw.sint}</span>
+          ${sIcon}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  // Replace feedback with explanation + buttons
+  const fb = document.getElementById('labFeedback');
+  fb.innerHTML = `<div class="card p-5">
+    <div class="flex items-start gap-3 mb-3">
+      <i data-lucide="book-check" class="w-6 h-6 text-green-600 flex-shrink-0 mt-1"></i>
+      <div>
+        <h3 class="text-lg mb-1">Correção completa</h3>
+        <p class="text-sm text-gray-600">Aqui está a análise morfossintática correta de cada palavra. Compara com as tuas escolhas e usa esta vista para estudar.</p>
+      </div>
+    </div>
+    <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm mb-3">
+      <strong>💡 Lembra-te:</strong> a <span class="text-orange-600 font-semibold">Morfologia</span> diz <em>o que a palavra é</em> (classe). A <span class="text-blue-700 font-semibold">Sintaxe</span> diz <em>o que a palavra faz</em> na frase (função).
+    </div>
+    <div class="flex justify-center gap-2 flex-wrap">
+      <button class="btn btn-ghost" onclick="showMyAttempt()"><i data-lucide="undo-2" class="w-4 h-4"></i>Ver as minhas respostas</button>
+      <button class="btn btn-blue" onclick="document.getElementById('labReset').click()"><i data-lucide="rotate-cw" class="w-4 h-4"></i>Tentar outra vez</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('labBack').click()"><i data-lucide="list" class="w-4 h-4"></i>Outra frase</button>
+    </div>
+  </div>`;
+  if(window.lucide)lucide.createIcons();
+  document.getElementById('labBricks').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Toggle back to the user's validated attempt
+function showMyAttempt(){
+  const s = SENTENCES.find(x=>x.id===labCur);
+  const st = labState[labCur] || {};
+  let ok = 0, total = s.palavras.length * 2;
+  const w = document.getElementById('labBricks');
+  w.innerHTML = s.palavras.map((pw,i)=>{
+    const col = ((i%9)+1);
+    const m = st[i]?.morf, sn = st[i]?.sint;
+    const mClass = !m ? 'skipped' : (m===pw.morf?'correct':'wrong');
+    const sClass = !sn ? 'skipped' : (sn===pw.sint?'correct':'wrong');
+    if(m===pw.morf) ok++;
+    if(sn===pw.sint) ok++;
+    return `<div class="lab-brick">
+      <div class="brick-word bc-${col}">${pw.p}</div>
+      <div class="brick-slots">
+        <button class="brick-slot morph filled ${mClass}" onclick="openPicker(${i},'morf')">
+          <span class="lbl-mini">Classe</span>
+          <span>${m||'(vazio)'}</span>
+          ${m && m!==pw.morf ? `<span class="lbl-mini" style="opacity:1">✓ ${pw.morf}</span>` : ''}
+          ${!m ? `<span class="lbl-mini" style="opacity:1">✓ ${pw.morf}</span>` : ''}
+        </button>
+        <button class="brick-slot synt filled ${sClass}" onclick="openPicker(${i},'sint')">
+          <span class="lbl-mini">Função</span>
+          <span>${sn||'(vazio)'}</span>
+          ${sn && sn!==pw.sint ? `<span class="lbl-mini" style="opacity:1">✓ ${pw.sint}</span>` : ''}
+          ${!sn ? `<span class="lbl-mini" style="opacity:1">✓ ${pw.sint}</span>` : ''}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+  const pct = st._score || 0;
+  let medal='💪', msg='Continua a tentar! Revê os resumos.';
+  if(pct===100){medal='🏆';msg='Perfeito! Análise impecável.';}
+  else if(pct>=80){medal='🥇';msg='Muito bem! Quase no topo.';}
+  else if(pct>=60){medal='🥈';msg='Bom! Vê os encaixes vermelhos.';}
+  else if(pct>=40){medal='🥉';msg='Razoável. Os encaixes a verde mostram o que acertaste.';}
+  const fb = document.getElementById('labFeedback');
+  fb.innerHTML = `<div class="card p-5 text-center">
+    <div class="text-5xl mb-1">${medal}</div>
+    <div class="text-3xl font-bold text-orange-600">${pct}%</div>
+    <p class="text-sm text-gray-600 mb-2">${ok} acertos em ${total} encaixes</p>
+    <p class="text-sm">${msg}</p>
+    <div class="flex justify-center gap-2 mt-3 flex-wrap">
+      ${pct<100 ? '<button class="btn btn-primary" onclick="showCorrection()"><i data-lucide="book-check" class="w-4 h-4"></i>Ver correção</button>' : ''}
+      <button class="btn btn-blue" onclick="document.getElementById('labReset').click()"><i data-lucide="rotate-cw" class="w-4 h-4"></i>Tentar outra vez</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('labBack').click()"><i data-lucide="list" class="w-4 h-4"></i>Outra frase</button>
+    </div>
+  </div>`;
+  if(window.lucide)lucide.createIcons();
+  document.getElementById('labBricks').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// init
+labLoadProgress();
+renderLabMenu();
+
+if(window.lucide)lucide.createIcons();
+</script>
+</body>
+</html>
